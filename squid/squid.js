@@ -65,7 +65,6 @@ class App {
     // 키보드가 떼졌을때 동작 이벤트
     document.addEventListener("keyup", (e) => {
       this._pressedkeys[e.key.toLowerCase()] = false;
-      // this._jumpAcctive = 0;
       this._processAnimation();
     });
     // document.addEventListener("mousedown", (e) => {
@@ -77,6 +76,77 @@ class App {
   _processAnimation() {
     const previousAnimationAction = this._currentAnimationAction;
 
+    // if (this._pressedkeys[" "]) {
+    //   this._jumpAcctive === 1;
+    //   this._currentAnimationAction = this._animationMap["Jump"];
+    //   this._jump_maxSpeed = 100;
+    //   this._jump_acceleration = 50;
+    //   if (
+    //     this._pressedkeys["w"] ||
+    //     this._pressedkeys["a"] ||
+    //     this._pressedkeys["s"] ||
+    //     this._pressedkeys["d"]
+    //   ) {
+    //     if (this._pressedkeys["shift"]) {
+    //       this._currentAnimationAction = this._animationMap["Running"];
+    //       // this._speed = 50;
+    //       this._maxSpeed = 20;
+    //       this._acceleration = 1;
+    //     } else {
+    //       this._currentAnimationAction = this._animationMap["Walking"];
+    //       // this._speed = 20;
+    //       this._maxSpeed = 10;
+    //       this._acceleration = 1;
+    //       if (this._pressedkeys["c"]) {
+    //         this._currentAnimationAction = this._animationMap["Sitting"];
+    //       }
+    //     }
+    //   } else {
+    //     this._currentAnimationAction = this._animationMap["Idle"];
+    //     this._speed = 0;
+    //     this._maxSpeed = 0;
+    //     this._acceleration = 0;
+    //     if (this._pressedkeys["c"]) {
+    //       this._currentAnimationAction = this._animationMap["Sitting"];
+    //     } else if (this._pressedkeys["t"]) {
+    //       this._currentAnimationAction = this._animationMap["ThumbsUp"];
+    //     }
+    //   }
+    // } else {
+    //   if (
+    //     this._pressedkeys["w"] ||
+    //     this._pressedkeys["a"] ||
+    //     this._pressedkeys["s"] ||
+    //     this._pressedkeys["d"]
+    //   ) {
+    //     if (this._pressedkeys["shift"]) {
+    //       this._currentAnimationAction = this._animationMap["Running"];
+    //       // this._speed = 50;
+    //       this._maxSpeed = 20;
+    //       this._acceleration = 1;
+    //     } else {
+    //       this._currentAnimationAction = this._animationMap["Walking"];
+    //       // this._speed = 20;
+    //       this._maxSpeed = 10;
+    //       this._acceleration = 1;
+    //       if (this._pressedkeys["c"]) {
+    //         this._currentAnimationAction = this._animationMap["Sitting"];
+    //       }
+    //     }
+    //   } else {
+    //     this._currentAnimationAction = this._animationMap["Idle"];
+    //     this._speed = 0;
+    //     this._maxSpeed = 0;
+    //     this._acceleration = 0;
+    //     if (this._pressedkeys["c"]) {
+    //       this._currentAnimationAction = this._animationMap["Sitting"];
+    //     } else if (this._pressedkeys["t"]) {
+    //       this._currentAnimationAction = this._animationMap["ThumbsUp"];
+    //     }
+    //   }
+    // }
+
+    // 이전 컨트롤
     if (
       this._pressedkeys["w"] ||
       this._pressedkeys["a"] ||
@@ -90,6 +160,9 @@ class App {
         this._acceleration = 1;
         if (this._pressedkeys[" "]) {
           this._currentAnimationAction = this._animationMap["Jump"];
+          this._jumpAcctive = 1;
+          this._jump_maxSpeed = 100;
+          this._jump_acceleration = 20;
         }
       } else {
         this._currentAnimationAction = this._animationMap["Walking"];
@@ -98,6 +171,9 @@ class App {
         this._acceleration = 1;
         if (this._pressedkeys[" "]) {
           this._currentAnimationAction = this._animationMap["Jump"];
+          this._jumpAcctive = 1;
+          this._jump_maxSpeed = 1000;
+          this._jump_acceleration = 200;
         } else if (this._pressedkeys["c"]) {
           this._currentAnimationAction = this._animationMap["Sitting"];
         }
@@ -109,6 +185,9 @@ class App {
       this._acceleration = 0;
       if (this._pressedkeys[" "]) {
         this._currentAnimationAction = this._animationMap["Jump"];
+        this._jumpAcctive = 1;
+        this._jump_maxSpeed = 1000;
+        this._jump_acceleration = 200;
       } else if (this._pressedkeys["c"]) {
         this._currentAnimationAction = this._animationMap["Sitting"];
       } else if (this._pressedkeys["t"]) {
@@ -340,9 +419,9 @@ class App {
 
   // 점프값 설정
   _jumpAcctive = 0;
-  _jumpValue = 0;
+  _jumpSpeed = 0;
   _jump_acceleration = 0;
-  _maxJump = 0;
+  _jump_maxSpeed = 0;
 
   // 충돌 검사(바닥에 있는지에 대한 여부 true이면 지면 false이면 허공)
   // 이걸 기준으로 Y축에 대한 이동을 준다.
@@ -412,7 +491,7 @@ class App {
       // 땅 충돌(중력) 컨트롤
       if (!this._bOnTheGround) {
         this._fallingAcceleration += 1;
-        this._fallingSpeed += Math.pow(this._fallingAcceleration, 2);
+        this._fallingSpeed += Math.pow(this._fallingAcceleration, 1.2);
       } else {
         this._fallingAcceleration = 0;
         this._fallingSpeed = 0;
@@ -428,13 +507,23 @@ class App {
       const deltaPosition = velocity.clone().multiplyScalar(deltaTime);
 
       // 점프 컨트롤
-      if (this._jumpAcctive) {
-        this._jumpValue += this._jump_acceleration;
+      if (this._jumpAcctive === 1) {
+        console.log("111111111111111");
+        if (this._jumpSpeed < this._jump_maxSpeed) {
+          this._jumpSpeed += this._jump_acceleration;
+          console.log("22222222222222");
+        } else {
+          this._jumpSpeed -= this._jump_acceleration;
+          console.log("3333333333333333");
+          console.log(this._jumpSpeed);
+        }
       } else {
-        this._jumpValue -= this._jump_acceleration;
+        this._jumpSpeed -= this._jump_acceleration;
+        console.log("4444444444444444");
       }
       // 캐릭터 이동 전에 캡슐을 이동시킴
       this._model._capsule.translate(deltaPosition);
+
       // 캡슐과 장애물의 충돌을 검사를 위한 변수
       const result = this._worldOctree.capsuleIntersect(this._model._capsule);
       if (result) {
@@ -447,7 +536,6 @@ class App {
         this._bOnTheGround = false;
         // 충돌하지 않은 경우
       }
-
       const previousPosition = this._model.position.clone();
       const capsuleHeight =
         this._model._capsule.end.y -
