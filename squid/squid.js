@@ -66,6 +66,7 @@ class App {
     document.addEventListener("keyup", (e) => {
       this._pressedkeys[e.key.toLowerCase()] = false;
       this._processAnimation();
+      this._jumpAcctive = 0;
     });
     // document.addEventListener("mousedown", (e) => {
     //   this._pressedmouse[e.m];
@@ -161,8 +162,8 @@ class App {
         if (this._pressedkeys[" "]) {
           this._currentAnimationAction = this._animationMap["Jump"];
           this._jumpAcctive = 1;
-          this._jump_maxSpeed = 100;
-          this._jump_acceleration = 20;
+          this._jump_maxSpeed = 40;
+          this._jump_acceleration = 1;
         }
       } else {
         this._currentAnimationAction = this._animationMap["Walking"];
@@ -172,8 +173,8 @@ class App {
         if (this._pressedkeys[" "]) {
           this._currentAnimationAction = this._animationMap["Jump"];
           this._jumpAcctive = 1;
-          this._jump_maxSpeed = 1000;
-          this._jump_acceleration = 200;
+          this._jump_maxSpeed = 40;
+          this._jump_acceleration = 1;
         } else if (this._pressedkeys["c"]) {
           this._currentAnimationAction = this._animationMap["Sitting"];
         }
@@ -186,8 +187,8 @@ class App {
       if (this._pressedkeys[" "]) {
         this._currentAnimationAction = this._animationMap["Jump"];
         this._jumpAcctive = 1;
-        this._jump_maxSpeed = 1000;
-        this._jump_acceleration = 200;
+        this._jump_maxSpeed = 40;
+        this._jump_acceleration = 1;
       } else if (this._pressedkeys["c"]) {
         this._currentAnimationAction = this._animationMap["Sitting"];
       } else if (this._pressedkeys["t"]) {
@@ -422,6 +423,7 @@ class App {
   _jumpSpeed = 0;
   _jump_acceleration = 0;
   _jump_maxSpeed = 0;
+  _jumpMax = 0;
 
   // 충돌 검사(바닥에 있는지에 대한 여부 true이면 지면 false이면 허공)
   // 이걸 기준으로 Y축에 대한 이동을 준다.
@@ -480,6 +482,7 @@ class App {
         new THREE.Vector3(0, 1, 0),
         this._directionOffset()
       );
+      // walkDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0));
 
       // 속도 조절 컨트롤
       if (this._speed < this._maxSpeed) {
@@ -488,14 +491,29 @@ class App {
         this._speed -= this._acceleration * 2;
       }
 
+      console.log(this._jumpAcctive);
       // 땅 충돌(중력) 컨트롤
+      // if (this._jumpAcctive === 1) {
+      //   if (!this._bOnTheGround) {
+      //     console.log("요기");
+      //     console.log(`@@@@@@${this._fallingSpeed}@@@@@@@`);
+      //     this._fallingAcceleration = 0;
+      //     this._fallingSpeed = 0;
+      //   } else {
+      //     console.log("어디");
+      //     console.log(`@@@@@@${this._fallingSpeed}@@@@@@@`);
+      //     this._fallingAcceleration = 3;
+      //     this._fallingSpeed -= this._fallingAcceleration;
+      //   }
+      // } else {
       if (!this._bOnTheGround) {
         this._fallingAcceleration += 1;
-        this._fallingSpeed += Math.pow(this._fallingAcceleration, 1.2);
+        this._fallingSpeed += Math.pow(this._fallingAcceleration, 0.8);
       } else {
         this._fallingAcceleration = 0;
         this._fallingSpeed = 0;
       }
+      // }
 
       // 중력 컨트롤을 위한 속도 벡터 구하기
       const velocity = new THREE.Vector3(
@@ -508,19 +526,22 @@ class App {
 
       // 점프 컨트롤
       if (this._jumpAcctive === 1) {
-        console.log("111111111111111");
         if (this._jumpSpeed < this._jump_maxSpeed) {
           this._jumpSpeed += this._jump_acceleration;
-          console.log("22222222222222");
-        } else {
-          this._jumpSpeed -= this._jump_acceleration;
-          console.log("3333333333333333");
-          console.log(this._jumpSpeed);
+          if (this._jumpAcctive == 1 && this._jumpMax == 1) {
+            if (this._jumpSpeed == 0) {
+              this._jumpMax = 0;
+            }
+            this._jumpSpeed -= this._jump_acceleration;
+          }
+          if (this._jumpSpeed == this._jump_maxSpeed) {
+            this._jumpMax = 1;
+          }
         }
       } else {
         this._jumpSpeed -= this._jump_acceleration;
-        console.log("4444444444444444");
       }
+
       // 캐릭터 이동 전에 캡슐을 이동시킴
       this._model._capsule.translate(deltaPosition);
 
@@ -528,26 +549,36 @@ class App {
       const result = this._worldOctree.capsuleIntersect(this._model._capsule);
       if (result) {
         // 출돌했을 경우
+        console.log("지면지면");
         this._model._capsule.translate(
           result.normal.multiplyScalar(result.depth)
         );
         this._bOnTheGround = true;
       } else {
+        console.log("허공허공허공허공허공허공허공허공");
         this._bOnTheGround = false;
         // 충돌하지 않은 경우
       }
       const previousPosition = this._model.position.clone();
+
       const capsuleHeight =
         this._model._capsule.end.y -
         this._model._capsule.start.y +
         this._model._capsule.radius * 2;
+
+      // if (this._jumpAcctive == 1) {
+      //   this._model.position.set(
+      //     this._model._capsule.start.x,
+      //     this._jumpSpeed,
+      //     this._model._capsule.start.z
+      //   );
+      // } else {
       this._model.position.set(
         this._model._capsule.start.x,
-        this._model._capsule.start.y -
-          this._model._capsule.radius +
-          capsuleHeight / 2,
+        this._jumpSpeed - this._model._capsule.radius + capsuleHeight / 2,
         this._model._capsule.start.z
       );
+      // }
 
       this._camera.position.x -= previousPosition.x - this._model.position.x;
       this._camera.position.z -= previousPosition.z - this._model.position.z;
