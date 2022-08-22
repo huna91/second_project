@@ -4,38 +4,40 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOG IN</title>
+    <title>SIGN UP</title>
     <script type="importmap">{
         "imports":{
             "three":"/build/three.module.js"
         }
     }</script>
     <script type="module" src="login_three.js"></script>
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="signup.css">
 </head>
 <body>
     <div id="webgl-container"></div>
     <div id="controls"></div>
-    <div id="login_page">
+    <div id="signup_page">
         <h1 class="title">Squid Game</h1>
+        <h2>SIGN UP</h2>
         <div class="form">
             <form action="">
-                <div class="login_id">
+                <div class="signup_id_div">
                     <h2>ID</h2>
-                    <input type="text" class="login_id">
+                    <input type="text" class="signup_id" placeholder="3~8자 영문+숫자">
                 </div>
-                <div class="login_pw">
+                <div class="signup_pw_div">
                     <h2>Password</h2>
-                    <input type="current-password">
+                    <input type="current-password" class="signup_pw" placeholder="8~16자 영문+숫자">
+                    <h2>Confirm</h2>
+                    <input type="current-password" class="confirm_pw" placeholder="비밀번호 확인">
                 </div>
                 <div class="buttons">
-                    <button>
-                        <a href="/signup">Sign Up</a>
-                    </button>
-                    <button>Access</button>
+                    <button class="check">Check</button>
+                    <button class="submit">Submit</button>
                 </div>
             </form>
         </div>
     </div>
 </body>
+<script scr="signup.js"></script>
 </html>

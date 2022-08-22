@@ -41,7 +41,7 @@ body {
     display: block;
 }
 
-#login_page {
+#signup_page {
     position: relative;
     top: 0;
     left: 50%;
@@ -71,8 +71,8 @@ input {
     font-size: 2em;
 }
 
-.login_pw {
-    margin-top: 5%;
+.signup_pw_div {
+    margin-top: 8%;
 }
 
 button {
