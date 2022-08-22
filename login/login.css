@@ -24,6 +24,7 @@ body {
     transform: translateX(-50%);
     bottom: 100px;
     gap: 1em;
+    display: none;
 }
 
 .button {

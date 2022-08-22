@@ -71,7 +71,7 @@ class App {
         const domControls = document.querySelector("#controls");
         const animationsMap = {};
 
-        //gltfAnimations.forEach(animationClip => {
+        gltfAnimations.forEach(animationClip => {
             const name = animationClip.name;
             console.log(name); // 행동목록 콘솔창에 출력
 
@@ -87,7 +87,7 @@ class App {
 
             const animationAction = mixer.clipAction(animationClip);
             animationsMap[name] = animationAction;
-        //});
+        });
 
         this._mixer = mixer;
         this._animationsMap = animationsMap;
