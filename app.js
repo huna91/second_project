@@ -5,6 +5,9 @@ const PORT = 3010;
 
 app.use(express.static(__dirname + "/squid"));
 app.use("/login/", express.static(path.join(__dirname + "/login")));
+app.use("/intro/", express.static(path.join(__dirname + "/intro")));
+app.use("/join/", express.static(path.join(__dirname + "/join")));
+app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
 
 app.use(
   "/build/",
