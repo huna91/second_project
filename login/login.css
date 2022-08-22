@@ -20,13 +20,14 @@ body {
 #controls {
     display: flex;
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 10%;
+    /* transform: translateX(-50%); */
     bottom: 100px;
     gap: 1em;
 }
 
 .button {
+    display: none;
     cursor: pointer;
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
@@ -34,6 +35,10 @@ body {
     border-radius: 0.5em;
     border: 2px solid white;
     padding: 1em 2em;
+}
+
+.button:nth-child(3), .button:nth-child(10), .button:nth-child(11), .button:nth-child(1) {
+    display: block;
 }
 
 #login_page {

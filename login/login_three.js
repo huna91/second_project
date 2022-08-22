@@ -71,10 +71,9 @@ class App {
         const domControls = document.querySelector("#controls");
         const animationsMap = {};
 
-        console.log(gltfAnimations);
         gltfAnimations.forEach(animationClip => {
             const name = animationClip.name;
-            console.log(name); // 행동목록 콘솔창에 출력
+            //console.log(name); // 행동목록 콘솔창에 출력
 
             const domButton = document.createElement("div");
             domButton.classList.add("button");
@@ -89,7 +88,7 @@ class App {
             const animationAction = mixer.clipAction(animationClip);
             animationsMap[name] = animationAction;
         });
-
+        
         this._mixer = mixer;
         this._animationsMap = animationsMap;
         this._currentAnimationAction = this._animationsMap["Walking"];
