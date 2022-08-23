@@ -5,13 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOG IN</title>
-    <link rel="stylesheet" href="login.css">
     <script type="importmap">{
         "imports":{
             "three":"/build/three.module.js"
         }
     }</script>
     <script type="module" src="login_three.js"></script>
+    <link rel="stylesheet" href="login.css">
 </head>
 <body>
     <div id="webgl-container"></div>
@@ -22,11 +22,11 @@
             <form action="">
                 <div class="login_id">
                     <h2>ID</h2>
-                    <input type="text">
+                    <input type="text" class="login_id">
                 </div>
                 <div class="login_pw">
                     <h2>Password</h2>
-                    <input type="password">
+                    <input type="current-password">
                 </div>
                 <div class="buttons">
                     <button>

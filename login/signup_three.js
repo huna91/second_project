@@ -96,7 +96,7 @@ class App {
     }
 
     _setupModel() {
-        new GLTFLoader().load("./data/Robot.glb", (gltf) => {
+        new GLTFLoader().load("/login/data/Robot.glb", (gltf) => {
             const model = gltf.scene;
             this._scene.add(model);
 
