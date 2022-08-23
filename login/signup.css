@@ -86,7 +86,22 @@ button {
     justify-content: space-around;
 }
 
+.check {
+    position: absolute;
+    top: 100%;
+}
+
+.submit {
+    display: none;
+}
 
 a {
     text-decoration: none;
+}
+
+#signature {
+    font-size: 2em;
+    position: relative;
+    left: 20%;
+    top: 3em;
 }

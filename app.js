@@ -4,12 +4,11 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
-const env = require("dotenv");
-const sequelize = require("sequelize");
-const mysql = require("mysql2");
-
+// model/index.js 에서 키값 가져오기
+const { sequelize, User } = require("./model");
+// express 실행
 const app = express();
-
+// 포트번호
 const PORT = 3010;
 
 
@@ -17,13 +16,15 @@ const PORT = 3010;
 
 // html파일 기본경로는 최상위폴더로 지정해놨습니다.
 app.set("views", path.join(__dirname));
-
 // html을 제외한 다른 파일들 경로 지정
 app.use(express.static(__dirname + "/squid"));
 app.use("/login/", express.static(path.join(__dirname + "/login")));
 app.use("/intro/", express.static(path.join(__dirname + "/intro")));
 app.use("/join/", express.static(path.join(__dirname + "/join")));
 app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
+// DB 모듈?용 파일 경로 지정
+app.use("/config/", express.static(path.join(__dirname + "/config")));
+app.use("/model/", express.static(path.join(__dirname + "/model")));
 // three.js 경로 지정
 app.use("/build/", express.static(path.join(__dirname, "node_modules/three/build")));
 app.use("/jsm/", express.static(path.join(__dirname, "node_modules/three/examples/jsm")));
@@ -38,7 +39,6 @@ app.use(express.urlencoded({ extended : false }));
 
 
 // sequelize
-/*
 sequelize.sync({ force : false })
   .then(() => {
     // 연결 성공
@@ -47,13 +47,22 @@ sequelize.sync({ force : false })
     // 연결 실패
     console.log(err);
   });
-*/
 
 
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
   res.render("login/signup");
 });
+app.post("/signup", (req, res) => {
+  const { id, password } = req.body;
+  console.log(id,password)
+  const signup = User.create({
+    userID : id,
+    password : password
+  });
+  res.redirect("/login");
+});
+
 
 // 포트 열기
 app.listen(PORT, () => {
