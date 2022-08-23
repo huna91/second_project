@@ -4,9 +4,8 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
-const dot = require("dotenv").config();
-const sequelize = require("sequelize");
-const mysql = require("mysql2");
+// model/index.js 에서 키값 가져오기
+const { sequelize, User } = require("./model");
 // express 실행
 const app = express();
 // 포트번호
@@ -40,7 +39,6 @@ app.use(express.urlencoded({ extended : false }));
 
 
 // sequelize
-/*
 sequelize.sync({ force : false })
   .then(() => {
     // 연결 성공
@@ -49,14 +47,21 @@ sequelize.sync({ force : false })
     // 연결 실패
     console.log(err);
   });
-*/
 
 
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
   res.render("login/signup");
 });
-//app.post("/signup", (req, res) => {})
+app.post("/signup", (req, res) => {
+  const { id, password } = req.body;
+  console.log(id,password)
+  const signup = User.create({
+    userID : id,
+    password : password
+  });
+  res.redirect("/login");
+});
 
 
 // 포트 열기

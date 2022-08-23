@@ -7,9 +7,9 @@ class User extends _sequelize.Model {
         return super.init(
         {
             userID : {
-                type : _sequelize.TEXT,
+                type : _sequelize.STRING(8),
                 allowNull : false,
-                unique : true
+                primaryKey : true
             },
             password : {
                 type : _sequelize.TEXT,
@@ -23,7 +23,7 @@ class User extends _sequelize.Model {
             modelName : "User",
             tableName : "users",
             paranoid : false,
-            charset : "uft8",
+            charset : "utf8",
             collate : "utf8_general_ci"
         });
     };

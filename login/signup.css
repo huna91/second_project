@@ -98,3 +98,10 @@ button {
 a {
     text-decoration: none;
 }
+
+#signature {
+    font-size: 2em;
+    position: relative;
+    left: 20%;
+    top: 3em;
+}
