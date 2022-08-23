@@ -91,3 +91,10 @@ a {
     text-decoration: none;
     color: black;
 }
+
+#signature {
+    font-size: 2em;
+    position: relative;
+    left: 20%;
+    top: 5em;
+}
