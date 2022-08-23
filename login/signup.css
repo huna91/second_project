@@ -86,6 +86,14 @@ button {
     justify-content: space-around;
 }
 
+.check {
+    position: absolute;
+    top: 100%;
+}
+
+.submit {
+    display: none;
+}
 
 a {
     text-decoration: none;
