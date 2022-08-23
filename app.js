@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const path = require("path");
+const fs = require("fs");
 const PORT = 3010;
 
 app.use(express.static(__dirname + "/squid"));
@@ -17,6 +18,12 @@ app.use(
   "/jsm/",
   express.static(path.join(__dirname, "node_modules/three/examples/jsm"))
 );
+
+app.get("/signup", (req, res) => {
+  fs.readFile("./login/signup.html", "utf-8", (err, data) => {
+    res.send(data);
+  })
+})
 
 app.listen(PORT, () => {
   console.log(`${PORT}번 포트 연결`);

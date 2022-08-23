@@ -20,3 +20,4 @@ function regCheck() {
     if (ID == true && PW == true) {alert("Submit 버튼을 눌러주세요")};
 };
 
+check.addEventListener("click", regCheck());
