@@ -65,7 +65,7 @@ app.get("/signup", (req, res) => {
 // login/signup 정보 받아오는거
 app.post("/signup", (req, res) => {
   const { id, password } = req.body;
-  console.log(id,password);
+  console.log(id, password, "회원가입시도");
   User.findOne({
     where : {
       userID : id
@@ -76,11 +76,37 @@ app.post("/signup", (req, res) => {
         userID : id,
         password : password
       });
+      console.log("가입성공")
       res.redirect("/login");
     } else {
+      console.log("가입실패")
       res.redirect("/ID_err");
     }
   })
 });
 
 
+// login error 페이지 불러오는거
+app.get("/login_err", (req, res) => {
+  res.render("login/login_err");
+});
+
+// login/login 페이지 정보 받아서 확인후 넘기기
+app.post("/login", (req, res) => {
+  const { id, password } = req.body;
+  console.log(id, password, "로그인 시도");
+  User.findOne({
+    where : {
+      userID : id,
+      password : password
+    }
+  }).then((e) => {
+    if (e === null) {
+      console.log(id, "로그인 실패");
+      res.redirect("/login_err");
+    } else {
+      console.log(id, "로그인 성공");
+      res.redirect("/");
+    }
+  });
+});
