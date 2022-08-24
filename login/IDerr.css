@@ -41,7 +41,7 @@ body {
     display: block;
 }
 
-#login_page {
+#ID_err_page {
     position: relative;
     top: 0;
     left: 50%;
@@ -52,27 +52,12 @@ body {
     margin-top: 8%;
 }
 
-.form {
-    margin-top: 4%;
-    position: relative;
-    width: 50%;
-    display: flex;
-    justify-content: center
-}
-form {
-    width: 342px;
-}
-
 h2 {
     font-size: 3em;
 }
 
-input {
-    font-size: 2em;
-}
-
-.login_pw {
-    margin-top: 5%;
+.ID_err {
+    font-size: 3.5em;
 }
 
 button {
@@ -81,11 +66,8 @@ button {
 }
 
 .buttons {
-    margin-top: 10%;
-    display: flex;
-    justify-content: space-around;
+    margin: 8% 0 0 15%;
 }
-
 
 a {
     text-decoration: none;
@@ -96,5 +78,5 @@ a {
     font-size: 2em;
     position: relative;
     left: 20%;
-    top: 5em;
+    top: 4em;
 }

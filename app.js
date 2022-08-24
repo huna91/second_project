@@ -4,6 +4,7 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
+const socketio = require("socket.io");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
 // express 실행
@@ -11,6 +12,10 @@ const app = express();
 // 포트번호
 const PORT = 3010;
 
+// 포트 열기
+const server = app.listen(PORT, () => {
+  console.log(`${PORT}번 포트 연결`);
+});
 
 // 기본 경로 설정
 
@@ -48,23 +53,34 @@ sequelize.sync({ force : false })
     console.log(err);
   });
 
+// login/ID_err 페이지 불러오는거
+app.get("/ID_err", (req, res) => {
+  res.render("login/ID_err");
+})
 
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
   res.render("login/signup");
 });
+// login/signup 정보 받아오는거
 app.post("/signup", (req, res) => {
   const { id, password } = req.body;
-  console.log(id,password)
-  const signup = User.create({
-    userID : id,
-    password : password
-  });
-  res.redirect("/login");
+  console.log(id,password);
+  User.findOne({
+    where : {
+      userID : id
+    }
+  }).then((e) => { // then >> 작업에 성공하면!!
+    if(e === null){
+      const signup = User.create({
+        userID : id,
+        password : password
+      });
+      res.redirect("/login");
+    } else {
+      res.redirect("/ID_err");
+    }
+  })
 });
 
 
-// 포트 열기
-app.listen(PORT, () => {
-  console.log(`${PORT}번 포트 연결`);
-});

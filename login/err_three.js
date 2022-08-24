@@ -91,7 +91,7 @@ class App {
 
         this._mixer = mixer;
         this._animationsMap = animationsMap;
-        this._currentAnimationAction = this._animationsMap["Walking"];
+        this._currentAnimationAction = this._animationsMap["Death"];
         this._currentAnimationAction.play();
     }
 
@@ -136,34 +136,4 @@ class App {
 
 window.onload = function() {
     new App();
-}
-
-
-// class들 불러오기
-const signup_id = document.querySelector(".signup_id");
-const signup_pw = document.querySelector(".signup_pw");
-const confirm_pw = document.querySelector(".confirm_pw");
-const check = document.querySelector(".check");
-const submit = document.querySelector(".submit");
-
-// 정규표현식으로 아이디, 패스워드 체크
-check.onclick = function(){
-    // 아이디, 패스워드 정규식으로 검사할 변수 생성 및 할당
-    const regID = /^[0-9a-zA-Z]{3,8}$/;
-    const ID = regID.test(signup_id.value);
-    const regPW = /^[a-zA-Z0-9]{8,16}$/;
-    const PW = regPW.test(signup_pw.value);
-
-    // 조건에 맞는지 확인하는 if문
-    if (ID == false) {alert("ID를 3~8자 영문+숫자 조합으로 입력해주세요")}
-    //
-    else if (PW == false) {alert("비밀번호를 다시 입력해주세요")}
-    else if (signup_pw.value != confirm_pw.value) {alert("비밀번호를 동일하게 입력해주세요")}
-
-    // 다 맞으면 실행. check버튼을 submit으로 변경
-    else if (ID == true && PW == true) {
-        check.style.display = "none";
-        submit.style.display = "block";
-        alert("Submit 버튼을 눌러주세요");
-    };
 }
