@@ -8,7 +8,25 @@
       content="width=device-width,initial-scale=1.0,
       minimum-scale=1.0,maximum-scale=1.0"
     />
-    <link rel="stylesheet" href="intro.css" type="text/html" />
+    <!-- <link rel="stylesheet" href="intro.css" /> -->
+    <style>
+      * {
+        outline: none;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      #webgl-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
     <script type="importmap">
       {
         "imports": {
@@ -17,10 +35,10 @@
         }
       }
     </script>
+    <script type="module" src="intro.js"></script>
   </head>
 
   <body>
     <div id="webgl-container"></div>
   </body>
-  <script type="module" src="intro.js"></script>
 </html>

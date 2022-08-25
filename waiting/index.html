@@ -1,12 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-    
-</body>
+    <link rel="stylesheet" href="public/styles/index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="public/icons/logo.png" width="150px" />
+        <h1>Cookie Cloud</h1>
+        <div>
+          <button type="button" onclick="show_hide()">
+            <img src="public/icons/hamburger.png" width="50px" />
+          </button>
+        </div>
+      </header>
+      <div class="container">
+        <div class="users-window">
+          <div class="users-head">
+            <h3>People</h3>
+            <h4 class="users-count"></h4>
+          </div>
+          <div class="users-list"></div>
+        </div>
+        <div class="chat-window">
+          <div class="chats"></div>
+          <div class="user-input">
+            <input id="user-msg" type="text" />
+            <button type="button" id="user-send">SEND</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      //   const socket = io.connect();
+      let uwindow = document.querySelector(".users-window");
+      function show_hide() {
+        if (uwindow.style.display == "block") {
+          uwindow.style.display = "none";
+        } else {
+          uwindow.style.display = "block";
+        }
+      }
+
+      let input = document.getElementById("user-msg");
+      input.addEventListener("keyup", function (e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          document.getElementById("user-send").click();
+        }
+      });
+    </script>
+
+    <script src="public/js/client.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>

@@ -535,7 +535,7 @@ class App {
       if (this._model.position.x < 14 && this._model.position.x > -16) {
         if (this._model.position.y < 10 && this._model.position.y > -10) {
           if (this._model.position.z < 51 && this._model.position.z > 49) {
-            window.location.href = "#";
+            window.location.href = "../login/signup.html";
           }
         }
       }
