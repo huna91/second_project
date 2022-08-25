@@ -80,19 +80,22 @@ button {
     background-color: snow;
 }
 
-.buttons {
-    margin-top: 10%;
+.btns {
+    height: 30px;
+    width: 50%;
     display: flex;
     justify-content: space-around;
 }
 
 .check {
     position: absolute;
-    top: 100%;
+    top: 95%;
 }
 
 .submit {
     display: none;
+    position: absolute;
+    top: 95%;
 }
 
 a {
