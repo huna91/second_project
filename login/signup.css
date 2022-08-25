@@ -83,19 +83,19 @@ button {
 .btns {
     height: 30px;
     width: 50%;
-    display: flex;
-    justify-content: space-around;
 }
 
 .check {
     position: absolute;
-    top: 95%;
+    top: 100%;
+    left: 50%;
 }
 
 .submit {
-    display: none;
+    /* display: none; */
     position: absolute;
-    top: 95%;
+    top: 100%;
+    left: 50%;
 }
 
 a {

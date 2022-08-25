@@ -138,7 +138,7 @@ window.onload = function() {
     new App();
 }
 
-
+/*
 // class들 불러오기
 const signup_id = document.querySelector(".signup_id");
 const signup_pw = document.querySelector(".signup_pw");
@@ -147,7 +147,7 @@ const check = document.querySelector(".check");
 const submit = document.querySelector(".submit");
 
 // 정규표현식으로 아이디, 패스워드 체크
-let check_enter = (check.onclick = function(){
+check.onclick = function(){
     // 아이디, 패스워드 정규식으로 검사할 변수 생성 및 할당
     const regID = /^[0-9a-zA-Z]{3,8}$/;
     const ID = regID.test(signup_id.value);
@@ -166,11 +166,5 @@ let check_enter = (check.onclick = function(){
         submit.style.display = "block";
         alert("Submit 버튼을 눌러주세요");
     };
-});
-
-// 엔터로 넘어가기
-document.onkeydown = (e) => {
-    if (e.keyCode == 13) {
-        check_enter();
-    }
 };
+*/
