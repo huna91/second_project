@@ -5,8 +5,9 @@ const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
 const socketio = require("socket.io");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cookie = require("cookie-parser");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
 // express 실행
@@ -43,6 +44,8 @@ app.engine("html", ejs.renderFile);
 app.set("view engine", "html");
 // body객체 사용함 설정
 app.use(express.urlencoded({ extended : false }));
+// cookie-parser 사용준비
+app.use(cookie());
 
 
 // sequelize
@@ -105,23 +108,27 @@ app.post("/signup", (req, res) => {
 app.post("/login", (req, res) => {
   const { id, password } = req.body;
   console.log(id, "로그인 시도");
+  // 데이터베이스에서 입력한 ID가 있는지 검색
   User.findOne({
     where : {
       userID : id
     }
   }).then((e) => {
+    // 아이디가 없으면
     if (e === null) {
       console.log(id, "로그인 실패");
       res.render("login/err/login_err");
     } else {
+      // 아이디가 있으면 입력한 패스워드와 DB의 패스워드 비교
       bcrypt.compare(password, e.password, (err, same) => {
+        // 패스워드가 맞으면
         if (same) {
           console.log(id, "로그인 성공");
           res.redirect("/");
         } else {
-          // password 틀림
-          console.log("password 다름");
-          res.render("login/err/pw_err");
+          // 패스워드가 틀리면
+          console.log("password Error");
+          res.render("login/err/login_err");
         }
       })
     }
