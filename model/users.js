@@ -14,6 +14,10 @@ class User extends _sequelize.Model {
             password : {
                 type : _sequelize.TEXT,
                 allowNull : false
+            },
+            refreshToken : {
+                type : _sequelize.TEXT,
+                allowNull : true
             }
         },
         {

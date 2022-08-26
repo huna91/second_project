@@ -5,6 +5,9 @@ const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
 const socketio = require("socket.io");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cookie = require("cookie-parser");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
 // express 실행
@@ -41,6 +44,8 @@ app.engine("html", ejs.renderFile);
 app.set("view engine", "html");
 // body객체 사용함 설정
 app.use(express.urlencoded({ extended : false }));
+// cookie-parser 사용준비
+app.use(cookie());
 
 
 // sequelize
@@ -53,6 +58,7 @@ sequelize.sync({ force : false })
   console.log(err);
 });
 
+
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
   res.render("login/signup");
@@ -61,8 +67,7 @@ app.get("/signup", (req, res) => {
 // login/signup 정보 받아오는거
 app.post("/signup", (req, res) => {
   const { id, password, confirm } = req.body;
-  console.log(id, password, "회원가입시도");
-
+  console.log(id, "회원가입시도");
   // 받아온 id, password 정규식 검사
   const regID = /^[0-9a-zA-Z]{3,8}$/;
   const regPW = /^[a-zA-Z0-9]{8,16}$/;
@@ -78,42 +83,54 @@ app.post("/signup", (req, res) => {
         userID : id
       }
     }).then((e) => { // then >> 작업에 성공하면!!
-      // 아이디 중복인지 확인
-      if(e === null){
-        const signup = User.create({
-          userID : id,
-          password : password
-        });
-        console.log("가입성공")
-        res.redirect("/login");
-      } else {
-        // 아이디 중복시
-        console.log("가입실패")
-        res.render("login/err/dupID_err");
-      }
+      // password 암호화
+      bcrypt.hash(password, 10, (err, data) => {
+        // 아이디 중복인지 확인
+        if(e === null){
+          // 아이디 중복이 아니면 실행
+          const signup = User.create({
+            userID : id,
+            password : data
+          });
+          console.log("가입성공")
+          res.redirect("/login");
+        } else {
+          // 아이디 중복시
+          console.log("가입실패")
+          res.render("login/err/dupID_err");
+        }
+      })
     })
-
   }
 });
-
-
 
 // login/login 페이지 정보 받아서 확인후 넘기기
 app.post("/login", (req, res) => {
   const { id, password } = req.body;
-  console.log(id, password, "로그인 시도");
+  console.log(id, "로그인 시도");
+  // 데이터베이스에서 입력한 ID가 있는지 검색
   User.findOne({
     where : {
-      userID : id,
-      password : password
+      userID : id
     }
   }).then((e) => {
+    // 아이디가 없으면
     if (e === null) {
       console.log(id, "로그인 실패");
-      res.redirect("login/err/login_err");
+      res.render("login/err/login_err");
     } else {
-      console.log(id, "로그인 성공");
-      res.redirect("/");
+      // 아이디가 있으면 입력한 패스워드와 DB의 패스워드 비교
+      bcrypt.compare(password, e.password, (err, same) => {
+        // 패스워드가 맞으면
+        if (same) {
+          console.log(id, "로그인 성공");
+          res.redirect("/");
+        } else {
+          // 패스워드가 틀리면
+          console.log("password Error");
+          res.render("login/err/login_err");
+        }
+      })
     }
   });
 });
