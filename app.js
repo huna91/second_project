@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
 const socketio = require("socket.io");
+const jwt = require("jsonwebtoken");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
 // express 실행
@@ -53,6 +54,7 @@ sequelize.sync({ force : false })
   console.log(err);
 });
 
+
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
   res.render("login/signup");
@@ -62,7 +64,6 @@ app.get("/signup", (req, res) => {
 app.post("/signup", (req, res) => {
   const { id, password, confirm } = req.body;
   console.log(id, password, "회원가입시도");
-
   // 받아온 id, password 정규식 검사
   const regID = /^[0-9a-zA-Z]{3,8}$/;
   const regPW = /^[a-zA-Z0-9]{8,16}$/;
@@ -80,6 +81,7 @@ app.post("/signup", (req, res) => {
     }).then((e) => { // then >> 작업에 성공하면!!
       // 아이디 중복인지 확인
       if(e === null){
+        // 아이디 중복이 아니면 실행
         const signup = User.create({
           userID : id,
           password : password
@@ -92,16 +94,13 @@ app.post("/signup", (req, res) => {
         res.render("login/err/dupID_err");
       }
     })
-
   }
 });
-
-
 
 // login/login 페이지 정보 받아서 확인후 넘기기
 app.post("/login", (req, res) => {
   const { id, password } = req.body;
-  console.log(id, password, "로그인 시도");
+  console.log(id, "로그인 시도");
   User.findOne({
     where : {
       userID : id,
