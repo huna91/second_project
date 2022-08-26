@@ -6,6 +6,7 @@ const fs = require("fs");
 const ejs = require("ejs");
 const socketio = require("socket.io");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
 // express 실행
@@ -63,7 +64,7 @@ app.get("/signup", (req, res) => {
 // login/signup 정보 받아오는거
 app.post("/signup", (req, res) => {
   const { id, password, confirm } = req.body;
-  console.log(id, password, "회원가입시도");
+  console.log(id, "회원가입시도");
   // 받아온 id, password 정규식 검사
   const regID = /^[0-9a-zA-Z]{3,8}$/;
   const regPW = /^[a-zA-Z0-9]{8,16}$/;
@@ -79,20 +80,23 @@ app.post("/signup", (req, res) => {
         userID : id
       }
     }).then((e) => { // then >> 작업에 성공하면!!
-      // 아이디 중복인지 확인
-      if(e === null){
-        // 아이디 중복이 아니면 실행
-        const signup = User.create({
-          userID : id,
-          password : password
-        });
-        console.log("가입성공")
-        res.redirect("/login");
-      } else {
-        // 아이디 중복시
-        console.log("가입실패")
-        res.render("login/err/dupID_err");
-      }
+      // password 암호화
+      bcrypt.hash(password, 10, (err, data) => {
+        // 아이디 중복인지 확인
+        if(e === null){
+          // 아이디 중복이 아니면 실행
+          const signup = User.create({
+            userID : id,
+            password : data
+          });
+          console.log("가입성공")
+          res.redirect("/login");
+        } else {
+          // 아이디 중복시
+          console.log("가입실패")
+          res.render("login/err/dupID_err");
+        }
+      })
     })
   }
 });
@@ -103,16 +107,23 @@ app.post("/login", (req, res) => {
   console.log(id, "로그인 시도");
   User.findOne({
     where : {
-      userID : id,
-      password : password
+      userID : id
     }
   }).then((e) => {
     if (e === null) {
       console.log(id, "로그인 실패");
-      res.redirect("login/err/login_err");
+      res.render("login/err/login_err");
     } else {
-      console.log(id, "로그인 성공");
-      res.redirect("/");
+      bcrypt.compare(password, e.password, (err, same) => {
+        if (same) {
+          console.log(id, "로그인 성공");
+          res.redirect("/");
+        } else {
+          // password 틀림
+          console.log("password 다름");
+          res.render("login/err/pw_err");
+        }
+      })
     }
   });
 });
