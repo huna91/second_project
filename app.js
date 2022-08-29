@@ -27,9 +27,9 @@ const server = app.listen(PORT, () => {
 // html파일 기본경로는 최상위폴더로 지정해놨습니다.
 app.set("views", path.join(__dirname));
 // html을 제외한 다른 파일들 경로 지정
-app.use(express.static(__dirname + "/squid"));
+app.use(express.static(__dirname + "/intro"));
 app.use("/login/", express.static(path.join(__dirname + "/login")));
-app.use("/intro/", express.static(path.join(__dirname + "/intro")));
+// app.use("/intro/", express.static(path.join(__dirname + "/intro")));
 app.use("/join/", express.static(path.join(__dirname + "/join")));
 app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
 // DB 모듈?용 파일 경로 지정
@@ -66,7 +66,7 @@ const client = mysql.createConnection({
 })
 
 // sequelize
-sequelize.sync({ force : true })
+sequelize.sync({ force : false })
 .then(() => {
   // 연결 성공
   console.log("DB 연결")
@@ -75,6 +75,41 @@ sequelize.sync({ force : true })
   console.log(err);
 });
 
+
+// 미들웨어 생성. 토큰 확인 하는 함수.
+const middleware = (req, res, next) => {
+  const { access_token, refresh_token } = req.session;
+  jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
+    if (err) {
+      jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, (err, ref_decoded) => {
+        if (err) {
+          res.render("login/err/relogin");
+        } else {
+          const sql = "SELECT * FROM users WHERE user_i_d=?;";
+          client.query(sql, [ref_decoded.userID], (err, result) => {
+            if (err) {
+              console.log("데이터베이스 연결을 확인해주세요.");
+            } else {
+              if (result[0]?.refresh == refresh_token) {
+                const accessToken = jwt.sign(
+                  {userID : ref_decoded.userID},
+                  process.env.ACCESS_TOKEN_KEY,
+                  {expiresIn : "1h"}
+                );
+                req.session.access_token = accessToken;
+                next();
+              } else {
+                res.render("login/err/relogin");
+              }
+            }
+          })
+        }
+      })
+    } else {
+      next();
+    }
+  })
+}
 
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
@@ -157,10 +192,10 @@ app.post("/login", (req, res) => {
           // 쿼리문으로 DB에 refresh token을 저장
           const sql = "UPDATE users SET refresh_token=? WHERE user_i_d=?;";
           client.query(sql, [refreshToken, id]);
-          // 세션에 각 토큰값을 할당
+          // 세션에 각 토큰값을 할당, 필드화
           req.session.access_token = accessToken;
           req.session.refresh_token = refreshToken;
-          console.log(accessToken, refreshToken);
+          //console.log(accessToken, refreshToken);
           // 페이지 이동
           res.redirect("/");
         } else {
@@ -172,3 +207,4 @@ app.post("/login", (req, res) => {
     }
   });
 });
+
