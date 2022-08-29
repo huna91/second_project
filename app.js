@@ -77,77 +77,6 @@ sequelize.sync({ force : true })
   console.log(err);
 });
 
-// 미들웨어 생성. 토큰 확인하는 함수
-const middleware = (req, res, next) => {
-  const { access_token, refresh_token } = req.session;
-  // access_token 확인
-  jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
-    if (err) {
-      // access_token이 만료 되었으면
-      jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, (err, ref_decoded) => {
-        if (err) {
-          res.render("login/err/relogin");
-        } else {
-          const sql = "SELECT * FROM users WHERE user_i_d=?;";
-          client.query(sql, [ref_decoded.userID], (err, result) => {
-            if (err) {
-              console.log("DB 연결을 확인해주세요");
-            } else {
-              if (result[0]?.refreshToken == refresh_token) {
-                const accessToken = jwt.sign(
-                  {userID : ref_decoded.userID},
-                  process.env.ACCESS_TOKEN_KEY,
-                  {expiresIn : "1h"}
-                );
-                req.session.access_token = accessToken;
-                next();
-              } else {
-                res.render("login/err/relogin");
-              }
-            }
-          })
-        }
-      })
-    } else {
-      next();
-    }
-  })
-}
-
-// 미들웨어 생성. 토큰 확인 하는 함수.
-const middleware = (req, res, next) => {
-  const { access_token, refresh_token } = req.session;
-  jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
-    if (err) {
-      jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, (err, ref_decoded) => {
-        if (err) {
-          res.render("login/err/relogin");
-        } else {
-          const sql = "SELECT * FROM users WHERE user_i_d=?;";
-          client.query(sql, [ref_decoded.userID], (err, result) => {
-            if (err) {
-              console.log("데이터베이스 연결을 확인해주세요.");
-            } else {
-              if (result[0]?.refresh == refresh_token) {
-                const accessToken = jwt.sign(
-                  {userID : ref_decoded.userID},
-                  process.env.ACCESS_TOKEN_KEY,
-                  {expiresIn : "1h"}
-                );
-                req.session.access_token = accessToken;
-                next();
-              } else {
-                res.render("login/err/relogin");
-              }
-            }
-          })
-        }
-      })
-    } else {
-      next();
-    }
-  })
-}
 
 // 첫번째 페이지
 app.get("/", (req, res) => {
@@ -353,11 +282,3 @@ io.on("connection", (socket) => {
     world.removePlayer(player);
   });
 });
-  socket.on("disconnect", function () {
-    console.log("user disconnected");
-    io.emit("removeOtherPlayer", player);
-    world.removePlayer(player);
-  });
-});
-=======
->>>>>>> a71633a8edf5552c156a3d9a5e8e66cf39cec3f8
