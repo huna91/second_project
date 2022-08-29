@@ -342,7 +342,12 @@ var checkKeyStates = function () {
   }
   // " " 스페이스 기능 추가하기
   if (keyState[32]) {
-    player.position.y += moveSpeed * Math.cos(player.rotation.y);
+    // player.position.y -= moveSpeed * Math.cos(player.rotation.y);
+    updatePlayerPosition.somePlayer.position.x = 100;
+    setTimeout(() => {
+      updatePlayerPosition.somePlayer.position.x =
+        data.x + Number(randomNumber_maker(100) - 50);
+    });
     updatePlayerData();
     socket.emit("updatePosition", playerData);
   }

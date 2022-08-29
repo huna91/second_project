@@ -61,7 +61,7 @@ class App {
     document.addEventListener("keydown", (e) => {
       this._pressedkeys[e.key.toLowerCase()] = true;
       this._processAnimation();
-      console.log(this._pressedkeys);
+      // console.log(this._pressedkeys);
     });
     // 키보드가 떼졌을때 동작 이벤트
     document.addEventListener("keyup", (e) => {
@@ -141,7 +141,7 @@ class App {
   _setupEnvironment() {
     const gltfLoder = new GLTFLoader();
     // 땅 로드
-    gltfLoder.load("./data/place.glb", (gltf) => {
+    gltfLoder.load("./data/place2.glb", (gltf) => {
       const space = gltf.scene;
 
       this._scene.add(space);
@@ -152,6 +152,7 @@ class App {
           child.receiveShadow = true;
         }
       });
+      space.rotation.y = -Math.PI / 2;
       this._setupOctree(space);
     });
   }
@@ -178,7 +179,7 @@ class App {
       const animationsMap = {};
       animationClips.forEach((clip) => {
         const name = clip.name;
-        console.log(name);
+        // console.log(name);
         // 애니메이션 액션 객체 저장
         animationsMap[name] = mixer.clipAction(clip);
       });
@@ -205,10 +206,10 @@ class App {
       );
 
       const axisHelper = new THREE.AxesHelper(1000);
-      this._scene.add(axisHelper);
+      // this._scene.add(axisHelper);
 
       const boxHelper = new THREE.BoxHelper(model);
-      this._scene.add(boxHelper);
+      // this._scene.add(boxHelper);
       this._boxHelper = boxHelper;
       this._model = model;
     });
@@ -243,7 +244,7 @@ class App {
       10,
       helperColor
     );
-    this._scene.add(pointLightHelper);
+    // this._scene.add(pointLightHelper);
   }
 
   _setupLight() {
@@ -262,7 +263,7 @@ class App {
       shadowLight,
       10
     );
-    this._scene.add(directionalLightHelper);
+    // this._scene.add(directionalLightHelper);
 
     this._scene.add(shadowLight);
     this._scene.add(shadowLight.target);
@@ -278,7 +279,7 @@ class App {
     const shadowCameraHelper = new THREE.CameraHelper(
       shadowLight.shadow.camera
     );
-    this._scene.add(shadowCameraHelper);
+    // this._scene.add(shadowCameraHelper);
   }
 
   // 키보드가 눌렸을때 방향의 값을 얻는 함수
@@ -396,7 +397,7 @@ class App {
         this._speed -= this._acceleration * 2;
       }
 
-      console.log(this._jumpAcctive);
+      // console.log(this._jumpAcctive);
       // 땅 충돌(중력) 컨트롤
       // if (this._jumpAcctive === 1) {
       //   if (!this._bOnTheGround) {
@@ -454,14 +455,14 @@ class App {
       const result = this._worldOctree.capsuleIntersect(this._model._capsule);
       if (result) {
         // 출돌했을 경우
-        console.log("지면지면");
+        // console.log("지면지면");
         this._model._capsule.translate(
           result.normal.multiplyScalar(result.depth)
         );
         this._bOnTheGround = true;
         this._jumpAcctive = true;
       } else {
-        console.log("허공허공허공허공허공허공허공허공");
+        // console.log("허공허공허공허공허공허공허공허공");
         this._bOnTheGround = false;
         // 충돌하지 않은 경우
       }
@@ -487,9 +488,9 @@ class App {
         this._model._capsule.start.z
       );
       // }
-      console.log(
-        `x좌표: ${this._model.position.x}, y좌표: ${this._model.position.y}, z좌표: ${this._model.position.z}`
-      );
+      // console.log(
+      //   `x좌표: ${this._model.position.x}, y좌표: ${this._model.position.y}, z좌표: ${this._model.position.z}`
+      // );
       this._camera.position.x -= previousPosition.x - this._model.position.x;
       this._camera.position.z -= previousPosition.z - this._model.position.z;
       // this._camera.position.y -= previousPosition.y - this._model.position.y;
@@ -523,18 +524,18 @@ class App {
       // }
 
       // 로그인 페이지 이동
-      if (this._model.position.x < 15 && this._model.position.x > -11) {
+      if (this._model.position.x < 53 && this._model.position.x > 48) {
         if (this._model.position.y < 10 && this._model.position.y > -10) {
-          if (this._model.position.z < -48 && this._model.position.z > -50) {
+          if (this._model.position.z < 15 && this._model.position.z > -14) {
             window.location.href = "../login/index.html";
           }
         }
       }
 
       // 회원가입 페이지 이동
-      if (this._model.position.x < 14 && this._model.position.x > -16) {
+      if (this._model.position.x < -54 && this._model.position.x > -60) {
         if (this._model.position.y < 10 && this._model.position.y > -10) {
-          if (this._model.position.z < 51 && this._model.position.z > 49) {
+          if (this._model.position.z < 16 && this._model.position.z > -13) {
             window.location.href = "../login/signup.html";
           }
         }
