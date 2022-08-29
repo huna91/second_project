@@ -8,6 +8,8 @@ const socketio = require("socket.io");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookie = require("cookie-parser");
+const mysql = require("mysql2");
+const session = require("express-session");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
 // express 실행
@@ -47,9 +49,24 @@ app.use(express.urlencoded({ extended : false }));
 // cookie-parser 사용준비
 app.use(cookie());
 
+// 세션 사용준비
+app.use(session({
+  secret : process.env.SESSION_KEY,
+  resave : false,
+  saveUninitialized : true
+}))
+
+
+// mysql 연결
+const client = mysql.createConnection({
+  user : "root",
+  password : process.env.DATABASE_PASSWORD,
+  database : "teamproject",
+  multipleStatements : true
+})
 
 // sequelize
-sequelize.sync({ force : false })
+sequelize.sync({ force : true })
 .then(() => {
   // 연결 성공
   console.log("DB 연결")
@@ -124,6 +141,27 @@ app.post("/login", (req, res) => {
         // 패스워드가 맞으면
         if (same) {
           console.log(id, "로그인 성공");
+          // access token 발급
+          const accessToken = jwt.sign({
+            userID : id
+          }, process.env.ACCESS_TOKEN_KEY, {
+            // 유효기간 1시간
+            expiresIn : "1h"
+          });
+          // resfresh token 발급
+          const refreshToken = jwt.sign({
+            userID : id
+          }, process.env.REFRESH_TOKEN_KEY, {
+            expiresIn : "1d"
+          });
+          // 쿼리문으로 DB에 refresh token을 저장
+          const sql = "UPDATE users SET refresh_token=? WHERE user_i_d=?;";
+          client.query(sql, [refreshToken, id]);
+          // 세션에 각 토큰값을 할당
+          req.session.access_token = accessToken;
+          req.session.refresh_token = refreshToken;
+          console.log(accessToken, refreshToken);
+          // 페이지 이동
           res.redirect("/");
         } else {
           // 패스워드가 틀리면
