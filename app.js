@@ -88,14 +88,57 @@ sequelize
     console.log(err);
   });
 
+
 // 첫번째 페이지
 app.get("/", (req, res) => {
   fs.readFile("/intro/");
 });
 
+// 미들웨어 생성. 토큰 확인하는 함수
+const middleware = (req, res, next) => {
+  const { access_token, refresh_token } = req.session;
+  // access_token 확인
+  jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
+    if (err) {
+      // access_token이 만료 되었으면
+      jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, (err, ref_decoded) => {
+        if (err) {
+          res.render("login/err/relogin");
+        } else {
+          const sql = "SELECT * FROM users WHERE user_i_d=?;";
+          client.query(sql, [ref_decoded.userID], (err, result) => {
+            if (err) {
+              console.log("DB 연결을 확인해주세요");
+            } else {
+              if (result[0]?.refreshToken == refresh_token) {
+                const accessToken = jwt.sign(
+                  {userID : ref_decoded.userID},
+                  process.env.ACCESS_TOKEN_KEY,
+                  {expiresIn : "1h"}
+                );
+                req.session.access_token = accessToken;
+                next();
+              } else {
+                res.render("login/err/relogin");
+              }
+            }
+          })
+        }
+      })
+    } else {
+      next();
+    }
+  })
+}
+
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
   res.render("login/signup");
+});
+
+// 대기실 입장페이지 불러오는거
+app.get("/waiting", middleware, (req, res) => {
+  res.render("/waiting");
 });
 
 // login/signup 정보 받아오는거
@@ -189,7 +232,7 @@ app.post("/login", (req, res) => {
           // 세션에 각 토큰값을 할당
           req.session.access_token = accessToken;
           req.session.refresh_token = refreshToken;
-          console.log(accessToken, refreshToken);
+          //console.log(accessToken, refreshToken);
           // 페이지 이동
           res.redirect("/waiting");
         } else {
