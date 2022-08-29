@@ -20,18 +20,18 @@ let users={};
 io.on("connection",(socket)=>{
     socket.on("new-user-join",(username)=>{
         users[socket.id]=username;
-        socket.broadcast.emit('user-connected',username);
+        io.emit('user-connected',username);
         io.emit("user-list",users);
         });
 
 socket.on("disconnect",()=>{
-    socket.broadcast.emit('user-disconnected', users[socket.id]);
+    io.emit('user-disconnected', users[socket.id]);
     delete users[socket.id];
     io.emit("user-list",users);
 });
 
 socket.on('message',(data)=>{
-    socket.broadcast.emit('message',{user: data.user,msg: data.msg});
+   socket.broadcast.emit('message',{user: data.user,msg: data.msg});
 });
 
 });
