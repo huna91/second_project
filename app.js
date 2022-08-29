@@ -31,42 +31,33 @@ app.set("views", path.join(__dirname));
 // html을 제외한 다른 파일들 경로 지정
 app.use(express.static(__dirname + "/intro"));
 app.use("/login/", express.static(path.join(__dirname + "/login")));
-// app.use("/intro/", express.static(path.join(__dirname + "/intro")));
+// // app.use("/intro/", express.static(path.join(__dirname + "/intro")));
 app.use("/join/", express.static(path.join(__dirname + "/join")));
 app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
 // DB 모듈?용 파일 경로 지정
 app.use("/config/", express.static(path.join(__dirname + "/config")));
 app.use("/model/", express.static(path.join(__dirname + "/model")));
 // three.js 경로 지정
-app.use(
-  "/build/",
-  express.static(path.join(__dirname, "node_modules/three/build"))
-);
-app.use(
-  "/jsm/",
-  express.static(path.join(__dirname, "node_modules/three/examples/jsm"))
-);
-app.get("/game/js/client_world.js", function (req, res) {
-  res.sendFile(__dirname + "/game/js/client_world.js");
-});
+app.use("/build/", express.static(path.join(__dirname, "node_modules/three/build")));
+app.use("/jsm/", express.static(path.join(__dirname, "node_modules/three/examples/jsm")));
+
 
 // 뷰엔진을 ejs방식으로 설정
 app.engine("html", ejs.renderFile);
 // 뷰엔진을 html을 랜더링할 때 사용
 app.set("view engine", "html");
 // body객체 사용함 설정
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended : false }));
 // cookie-parser 사용준비
 app.use(cookie());
 
 // 세션 사용준비
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+app.use(session({
+  secret : process.env.SESSION_KEY,
+  resave : false,
+  saveUninitialized : true
+}))
+
 
 // mysql 연결
 const client = mysql.createConnection({
@@ -77,17 +68,86 @@ const client = mysql.createConnection({
 });
 
 // sequelize
-sequelize
-  .sync({ force: false })
-  .then(() => {
-    // 연결 성공
-    console.log("DB 연결");
-  })
-  .catch((err) => {
-    // 연결 실패
-    console.log(err);
-  });
+sequelize.sync({ force : true })
+.then(() => {
+  // 연결 성공
+  console.log("DB 연결")
+}).catch((err) => {
+  // 연결 실패
+  console.log(err);
+});
 
+// 미들웨어 생성. 토큰 확인하는 함수
+const middleware = (req, res, next) => {
+  const { access_token, refresh_token } = req.session;
+  // access_token 확인
+  jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
+    if (err) {
+      // access_token이 만료 되었으면
+      jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, (err, ref_decoded) => {
+        if (err) {
+          res.render("login/err/relogin");
+        } else {
+          const sql = "SELECT * FROM users WHERE user_i_d=?;";
+          client.query(sql, [ref_decoded.userID], (err, result) => {
+            if (err) {
+              console.log("DB 연결을 확인해주세요");
+            } else {
+              if (result[0]?.refreshToken == refresh_token) {
+                const accessToken = jwt.sign(
+                  {userID : ref_decoded.userID},
+                  process.env.ACCESS_TOKEN_KEY,
+                  {expiresIn : "1h"}
+                );
+                req.session.access_token = accessToken;
+                next();
+              } else {
+                res.render("login/err/relogin");
+              }
+            }
+          })
+        }
+      })
+    } else {
+      next();
+    }
+  })
+}
+
+// 미들웨어 생성. 토큰 확인 하는 함수.
+const middleware = (req, res, next) => {
+  const { access_token, refresh_token } = req.session;
+  jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
+    if (err) {
+      jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, (err, ref_decoded) => {
+        if (err) {
+          res.render("login/err/relogin");
+        } else {
+          const sql = "SELECT * FROM users WHERE user_i_d=?;";
+          client.query(sql, [ref_decoded.userID], (err, result) => {
+            if (err) {
+              console.log("데이터베이스 연결을 확인해주세요.");
+            } else {
+              if (result[0]?.refresh == refresh_token) {
+                const accessToken = jwt.sign(
+                  {userID : ref_decoded.userID},
+                  process.env.ACCESS_TOKEN_KEY,
+                  {expiresIn : "1h"}
+                );
+                req.session.access_token = accessToken;
+                next();
+              } else {
+                res.render("login/err/relogin");
+              }
+            }
+          })
+        }
+      })
+    } else {
+      next();
+    }
+  })
+}
 
 // 첫번째 페이지
 app.get("/", (req, res) => {
@@ -229,7 +289,7 @@ app.post("/login", (req, res) => {
           // 쿼리문으로 DB에 refresh token을 저장
           const sql = "UPDATE users SET refresh_token=? WHERE user_i_d=?;";
           client.query(sql, [refreshToken, id]);
-          // 세션에 각 토큰값을 할당
+          // 세션에 각 토큰값을 할당, 필드화
           req.session.access_token = accessToken;
           req.session.refresh_token = refreshToken;
           //console.log(accessToken, refreshToken);
@@ -293,3 +353,11 @@ io.on("connection", (socket) => {
     world.removePlayer(player);
   });
 });
+  socket.on("disconnect", function () {
+    console.log("user disconnected");
+    io.emit("removeOtherPlayer", player);
+    world.removePlayer(player);
+  });
+});
+=======
+>>>>>>> a71633a8edf5552c156a3d9a5e8e66cf39cec3f8
