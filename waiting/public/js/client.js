@@ -1,4 +1,3 @@
-
 const socket = io();
 
 let chats = document.querySelector(".chats");
@@ -15,7 +14,6 @@ socket.emit("new-user-joined", username);
 socket.on("user-connected", (socket_name) => {
   userJoin(socket_name, "님이 들어왔어요");
 });
-
 
 function userJoin(name, result) {
   let div = document.createElement("div");

@@ -4,13 +4,9 @@
   box-sizing: border-box;
   font-family: "Baloo 2";
   font-size: 16px;
-  
 }
 * ::-webkit-scrollbar {
   display: none;
-}
-body{
-  background-color: rgb(102, 98, 98);
 }
 
 main {
@@ -23,7 +19,7 @@ main {
   border-radius: 10px;
 }
 main header {
-  background-color: #1c5779;
+  background-color: #2791cf;
   color: white;
   padding: 7px 20px;
   display: flex;
@@ -83,7 +79,8 @@ main div.container div.users-window div.users-list p {
   margin-bottom: 15px;
 }
 main div.container div.chat-window {
-  width: 100%;
+  width: 70%;
+  margin-right: 20px;
   border-radius: 10px;
   background-color: #3f3f3f;
 }
@@ -98,7 +95,7 @@ main div.container div.chat-window div.chats div.user-join {
   background-color: white;
   border-radius: 50px;
   width: -webkit-max-content;
-  width: max-content;
+  width: -moz-max-content;
   width: max-content;
   padding: 7px 20px;
   margin: 0 auto;
@@ -118,7 +115,7 @@ main div.container div.chat-window div.chats div.message p {
 main div.container div.chat-window div.chats div.outgoing {
   margin-left: auto;
   color: white;
-  background-color: #1f5e83;
+  background-color: #2791cf;
   border-radius: 10px;
   text-align: right;
 }
@@ -146,8 +143,30 @@ main div.container div.chat-window div.user-input button {
   outline: none;
   letter-spacing: 0.5px;
   color: white;
-  background-color: #225572;
+  background-color: #2791cf;
   border-radius: 0 10px 10px 0px;
+}
+.room_space{
+  width: 200px;
+  height: auto;
+  border-radius: 10px;
+  background-color: #3f3f3f;
+  /* height: 1029.57px; */
+}
+.room_1,.room_2,.room_3{
+  display: flex;
+  height: 60px;
+  justify-content: space-evenly;
+  align-items: center;
+  color: white;
+}
+#room_btn_1,#room_btn_2,#room_btn_3{
+  width: 70px;
+  border-radius: 5px;
+  background-color: yellowgreen;
+  color: #3f3f3f;
+  font-weight: 700;
+  border: none;
 }
 
 @media screen and (max-width: 900px) {
@@ -167,7 +186,7 @@ main div.container div.chat-window div.user-input button {
     width: 100%;
     border-radius: 0 0 10px 10px;
     height: -webkit-max-content;
-    height: max-content;
+    height: -moz-max-content;
     height: max-content;
     z-index: 11;
     box-shadow: 0 15px 20px -20px black;

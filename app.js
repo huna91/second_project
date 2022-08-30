@@ -38,26 +38,32 @@ app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
 app.use("/config/", express.static(path.join(__dirname + "/config")));
 app.use("/model/", express.static(path.join(__dirname + "/model")));
 // three.js 경로 지정
-app.use("/build/", express.static(path.join(__dirname, "node_modules/three/build")));
-app.use("/jsm/", express.static(path.join(__dirname, "node_modules/three/examples/jsm")));
-
+app.use(
+  "/build/",
+  express.static(path.join(__dirname, "node_modules/three/build"))
+);
+app.use(
+  "/jsm/",
+  express.static(path.join(__dirname, "node_modules/three/examples/jsm"))
+);
 
 // 뷰엔진을 ejs방식으로 설정
 app.engine("html", ejs.renderFile);
 // 뷰엔진을 html을 랜더링할 때 사용
 app.set("view engine", "html");
 // body객체 사용함 설정
-app.use(express.urlencoded({ extended : false }));
+app.use(express.urlencoded({ extended: false }));
 // cookie-parser 사용준비
 app.use(cookie());
 
 // 세션 사용준비
-app.use(session({
-  secret : process.env.SESSION_KEY,
-  resave : false,
-  saveUninitialized : true
-}))
-
+app.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 // mysql 연결
 const client = mysql.createConnection({
@@ -68,15 +74,16 @@ const client = mysql.createConnection({
 });
 
 // sequelize
-sequelize.sync({ force : false })
-.then(() => {
-  // 연결 성공
-  console.log("DB 연결")
-}).catch((err) => {
-  // 연결 실패
-  console.log(err);
-});
-
+sequelize
+  .sync({ force: false })
+  .then(() => {
+    // 연결 성공
+    console.log("DB 연결");
+  })
+  .catch((err) => {
+    // 연결 실패
+    console.log(err);
+  });
 
 // 첫번째 페이지
 app.get("/", (req, res) => {
@@ -90,35 +97,39 @@ const middleware = (req, res, next) => {
   jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
     if (err) {
       // access_token이 만료 되었으면
-      jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, (err, ref_decoded) => {
-        if (err) {
-          res.render("login/err/relogin");
-        } else {
-          const sql = "SELECT * FROM users WHERE user_i_d=?;";
-          client.query(sql, [ref_decoded.userID], (err, result) => {
-            if (err) {
-              console.log("DB 연결을 확인해주세요");
-            } else {
-              if (result[0]?.refreshToken == refresh_token) {
-                const accessToken = jwt.sign(
-                  {userID : ref_decoded.userID},
-                  process.env.ACCESS_TOKEN_KEY,
-                  {expiresIn : "1h"}
-                );
-                req.session.access_token = accessToken;
-                next();
+      jwt.verify(
+        refresh_token,
+        process.env.REFRESH_TOKEN_KEY,
+        (err, ref_decoded) => {
+          if (err) {
+            res.render("login/err/relogin");
+          } else {
+            const sql = "SELECT * FROM users WHERE user_i_d=?;";
+            client.query(sql, [ref_decoded.userID], (err, result) => {
+              if (err) {
+                console.log("DB 연결을 확인해주세요");
               } else {
-                res.render("login/err/relogin");
+                if (result[0]?.refreshToken == refresh_token) {
+                  const accessToken = jwt.sign(
+                    { userID: ref_decoded.userID },
+                    process.env.ACCESS_TOKEN_KEY,
+                    { expiresIn: "1h" }
+                  );
+                  req.session.access_token = accessToken;
+                  next();
+                } else {
+                  res.render("login/err/relogin");
+                }
               }
-            }
-          })
+            });
+          }
         }
-      })
+      );
     } else {
       next();
     }
-  })
-}
+  });
+};
 
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
@@ -232,11 +243,12 @@ app.post("/login", (req, res) => {
 
 // 대기실 입장페이지 불러오는거
 app.get("/waiting", middleware, (req, res) => {
+  console.log(req.session);
+  console.log("세션본다");
   const username = req.session;
   // req.session 에 저장 해놓은 ids 값을 랜더링 하면서 넘김
-  res.render("waiting/waiting", {user : username.ids});
+  res.render("waiting/waiting", { user: username.ids });
 });
-
 
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
