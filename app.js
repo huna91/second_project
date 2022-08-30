@@ -216,7 +216,7 @@ app.post("/login", (req, res) => {
           // 세션에 각 토큰값을 할당, express-session에 저장
           req.session.access_token = accessToken;
           req.session.refresh_token = refreshToken;
-          req.session.id = id;
+          req.session.ids = id;
           //console.log(accessToken, refreshToken);
           // 페이지 이동
           res.redirect("/waiting");
@@ -232,9 +232,8 @@ app.post("/login", (req, res) => {
 
 // 대기실 입장페이지 불러오는거
 app.get("/waiting", middleware, (req, res) => {
-  const username = req.session.id;
-  
-  res.render("waiting/waiting");
+  const username = req.session;
+  res.render("waiting/waiting", {user : username.ids});
 });
 
 
