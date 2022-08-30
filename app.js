@@ -243,8 +243,6 @@ app.post("/login", (req, res) => {
 
 // 대기실 입장페이지 불러오는거
 app.get("/waiting", middleware, (req, res) => {
-  console.log(req.session);
-  console.log("세션본다");
   const username = req.session;
   // req.session 에 저장 해놓은 ids 값을 랜더링 하면서 넘김
   res.render("waiting/waiting", { user: username.ids });

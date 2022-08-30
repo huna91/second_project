@@ -49,18 +49,18 @@ body {
 
 .title {
     font-size: 7em;
-    margin-top: 8%;
+    margin-top: 6vw;
 }
 
 .form {
-    margin-top: 4%;
+    margin-top: 4vw;
     position: relative;
     width: 50%;
     display: flex;
     justify-content: center
 }
 form {
-    width: 342px;
+    width: 17.813vw;
 }
 
 h2 {
@@ -72,7 +72,7 @@ input {
 }
 
 .login_pw {
-    margin-top: 5%;
+    margin-top: 1vw;
 }
 
 button {
@@ -81,7 +81,7 @@ button {
 }
 
 .buttons {
-    margin-top: 10%;
+    margin-top: 4vw;
     display: flex;
     justify-content: space-around;
 }
@@ -96,5 +96,5 @@ a {
     font-size: 2em;
     position: relative;
     left: 20%;
-    top: 5em;
+    top: 10vw;
 }
