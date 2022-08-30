@@ -309,8 +309,13 @@ var checkKeyStates = function () {
   }
   // "s" 아래방향
   if (keyState[40] || keyState[83]) {
-    player.position.x += moveSpeed * Math.sin(player.rotation.y);
-    player.position.z += moveSpeed * Math.cos(player.rotation.y);
+    if (keyState[16]) {
+      player.position.x += moveSpeed * Math.sin(player.rotation.y) * 2;
+      player.position.z += moveSpeed * Math.cos(player.rotation.y) * 2;
+    } else {
+      player.position.x += moveSpeed * Math.sin(player.rotation.y);
+      player.position.z += moveSpeed * Math.cos(player.rotation.y);
+    }
     updatePlayerData();
     socket.emit("updatePosition", playerData);
   }
@@ -344,9 +349,12 @@ var checkKeyStates = function () {
   if (keyState[32]) {
     // player.position.y -= moveSpeed * Math.cos(player.rotation.y);
     updatePlayerPosition.somePlayer.position.x = 100;
+    updatePlayerPosition.somePlayer.position.z = 100;
     setTimeout(() => {
       updatePlayerPosition.somePlayer.position.x =
         data.x + Number(randomNumber_maker(100) - 50);
+      updatePlayerPosition.somePlayer.position.z =
+        data.z + Number(randomNumber_maker(100) - 50);
     });
     updatePlayerData();
     socket.emit("updatePosition", playerData);

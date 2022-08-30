@@ -10,6 +10,10 @@ class Room extends _sequelize.Model {
           allowNull: false,
           primaryKey: true,
         },
+        count: {
+          type: _sequelize.TEXT,
+          allowNull: false,
+        },
       },
       {
         sequelize,

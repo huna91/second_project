@@ -31,7 +31,7 @@ app.set("views", path.join(__dirname));
 // html을 제외한 다른 파일들 경로 지정
 app.use(express.static(__dirname + "/intro"));
 app.use("/login/", express.static(path.join(__dirname + "/login")));
-// app.use("/intro/", express.static(path.join(__dirname + "/intro")));
+app.use("/game/", express.static(path.join(__dirname + "/game")));
 app.use("/join/", express.static(path.join(__dirname + "/join")));
 app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
 // DB 모듈?용 파일 경로 지정
@@ -243,11 +243,23 @@ app.post("/login", (req, res) => {
 
 // 대기실 입장페이지 불러오는거
 app.get("/waiting", middleware, (req, res) => {
-  console.log(req.session);
-  console.log("세션본다");
   const username = req.session;
   // req.session 에 저장 해놓은 ids 값을 랜더링 하면서 넘김
   res.render("waiting/waiting", { user: username.ids });
+});
+
+// 대기실 방 입장인원 컨트롤
+app.post("/waiting", (req, res) => {
+  // 방 값 가져오기
+  let { room } = req.body.room;
+  console.log(req.body.room);
+  // const { room1, room2, room3 } = req.body;
+  // let _rooms = [room1, room2, room3];
+  // User.findOne({
+  //   where: {
+  //     room: ,
+  //   },
+  // })
 });
 
 // ------------------------ 소켓 연결 ------------------------

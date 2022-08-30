@@ -41,22 +41,37 @@
           </div>
         </div>
         <div class="room_space">
-          <div class="room_1">
-            <h1>1번방</h1>
-            <h1 id="join_check_1">( 0 / 2 )</h1>
-
-            <button id="room_btn_1" class="room_option">입장</button>
-          </div>
-          <div class="room_2">
-            <h1>2번방</h1>
-            <h1 id="join_check_2">( 0 / 2 )</h1>
-            <button id="room_btn_2" class="room_option">입장</button>
-          </div>
-          <div class="room_3">
-            <h1>3번방</h1>
-            <h1 id="join_check_3">( 0 / 2 )</h1>
-            <button id="room_btn_3" class="room_option">입장</button>
-          </div>
+          <form action="" method="post">
+            <div class="room_1">
+              <h1>1번방</h1>
+              <h1 id="join_check_1">( 0 / 2 )</h1>
+              <input style="display: none" value="1" name="room" />
+              <button type="submit" id="room_btn_1" class="room_option">
+                입장
+              </button>
+            </div>
+          </form>
+          <form action="" method="post">
+            <div class="room_2">
+              <h1>2번방</h1>
+              <h1 id="join_check_2">( 0 / 2 )</h1>
+              <input style="display: none" value="2" name="room" />
+              <button type="submit" id="room_btn_2" class="room_option">
+                입장
+              </button>
+            </div>
+          </form>
+          <form action="" method="post">
+            <div class="room_3">
+              <h1>3번방</h1>
+              <h1 id="join_check_3">( 0 / 2 )</h1>
+              <input style="display: none" value="3" name="room" />
+              <button type="submit" id="room_btn_3" class="room_option">
+                입장
+              </button>
+            </div>
+          </form>
+          <!-- <button type="submit" id="sub_btn"></button> -->
         </div>
       </div>
     </main>
@@ -99,13 +114,9 @@
         if (Object.hasOwnProperty.call(room_btn, key)) {
           const element = room_btn[key];
           element.onclick = () => {
+            // 제출 버튼 입력
+            // sub_btn.onclick = () => {};
             console.log(key + "번버튼");
-            if (1) {
-              socket.emit("joinRoom", key, users_data, join_num);
-              socket.on("joinRoom", (room, users_data, join_num) => {
-                // join_check_=
-              });
-            }
           };
         }
       }
