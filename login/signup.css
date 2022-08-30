@@ -71,6 +71,11 @@ input {
     font-size: 2em;
 }
 
+.signup_id_div p {
+    color: darkgray;
+    font-size: 1em;
+}
+
 .signup_pw_div {
     margin-top: 8%;
 }

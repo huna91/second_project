@@ -130,7 +130,7 @@ app.post("/signup", (req, res) => {
   const { id, password, confirm } = req.body;
   console.log(id, "회원가입시도");
   // 받아온 id, password 정규식 검사
-  const regID = /^[0-9a-zA-Z]{3,8}$/;
+  const regID = /^[0-9a-zA-Z가-힣]{3,8}$/;
   const regPW = /^[a-zA-Z0-9]{8,16}$/;
   const ID = regID.test(id);
   const PW = regPW.test(password);
