@@ -11,7 +11,6 @@ let user_msg = document.querySelector("#user-msg");
 //   username = prompt("이름을 입력하세요: ");
 // } while (!username);
 
-console.log(username);
 socket.emit("new-user-joined", username);
 socket.on("user-connected", (socket_name) => {
   userJoin(socket_name, "님이 들어왔어요");
