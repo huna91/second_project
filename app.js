@@ -31,7 +31,7 @@ app.set("views", path.join(__dirname));
 // html을 제외한 다른 파일들 경로 지정
 app.use(express.static(__dirname + "/intro"));
 app.use("/login/", express.static(path.join(__dirname + "/login")));
-// // app.use("/intro/", express.static(path.join(__dirname + "/intro")));
+// app.use("/intro/", express.static(path.join(__dirname + "/intro")));
 app.use("/join/", express.static(path.join(__dirname + "/join")));
 app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
 // DB 모듈?용 파일 경로 지정
@@ -68,7 +68,7 @@ const client = mysql.createConnection({
 });
 
 // sequelize
-sequelize.sync({ force : true })
+sequelize.sync({ force : false })
 .then(() => {
   // 연결 성공
   console.log("DB 연결")
@@ -80,7 +80,7 @@ sequelize.sync({ force : true })
 
 // 첫번째 페이지
 app.get("/", (req, res) => {
-  fs.readFile("/intro/");
+  res.render("/intro/");
 });
 
 // 미들웨어 생성. 토큰 확인하는 함수
@@ -123,11 +123,6 @@ const middleware = (req, res, next) => {
 // login/signup 페이지 불러오는거
 app.get("/signup", (req, res) => {
   res.render("login/signup");
-});
-
-// 대기실 입장페이지 불러오는거
-app.get("/waiting", middleware, (req, res) => {
-  res.render("/waiting");
 });
 
 // login/signup 정보 받아오는거
@@ -218,9 +213,10 @@ app.post("/login", (req, res) => {
           // 쿼리문으로 DB에 refresh token을 저장
           const sql = "UPDATE users SET refresh_token=? WHERE user_i_d=?;";
           client.query(sql, [refreshToken, id]);
-          // 세션에 각 토큰값을 할당, 필드화
+          // 세션에 각 토큰값을 할당, express-session에 저장
           req.session.access_token = accessToken;
           req.session.refresh_token = refreshToken;
+          req.session.id = id;
           //console.log(accessToken, refreshToken);
           // 페이지 이동
           res.redirect("/waiting");
@@ -233,6 +229,14 @@ app.post("/login", (req, res) => {
     }
   });
 });
+
+// 대기실 입장페이지 불러오는거
+app.get("/waiting", middleware, (req, res) => {
+  const username = req.session.id;
+  
+  res.render("waiting/waiting");
+});
+
 
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
