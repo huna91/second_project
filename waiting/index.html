@@ -40,10 +40,33 @@
             <button type="button" id="user-send">SEND</button>
           </div>
         </div>
+        <div class="room_space">
+          <div class="room_1">
+            <h1>1번방</h1>
+            <h1 id="join_check_1">( 0 / 2 )</h1>
+
+            <button id="room_btn_1" class="room_option">입장</button>
+          </div>
+          <div class="room_2">
+            <h1>2번방</h1>
+            <h1 id="join_check_2">( 0 / 2 )</h1>
+            <button id="room_btn_2" class="room_option">입장</button>
+          </div>
+          <div class="room_3">
+            <h1>3번방</h1>
+            <h1 id="join_check_3">( 0 / 2 )</h1>
+            <button id="room_btn_3" class="room_option">입장</button>
+          </div>
+        </div>
       </div>
     </main>
+    <script src="public/js/client.js"></script>
     <script>
-      //   const socket = io.connect();
+      // const socket = io.connect();
+
+      // 접속유저 주소 받아오기
+      // socket.emit("joinChat", "hyhy");
+
       let uwindow = document.querySelector(".users-window");
       function show_hide() {
         if (uwindow.style.display == "block") {
@@ -53,6 +76,8 @@
         }
       }
 
+      // console.log(users_info);
+
       let input = document.getElementById("user-msg");
       input.addEventListener("keyup", function (e) {
         if (e.keyCode === 13) {
@@ -60,9 +85,47 @@
           document.getElementById("user-send").click();
         }
       });
+      // users_data : 유저 아이디
+      let join_num = 0;
+      let join_user_check = 0;
+      let room_btn = document.querySelectorAll(".room_option");
+      for (const key in room_btn) {
+        if (Object.hasOwnProperty.call(room_btn, key)) {
+          const element = room_btn[key];
+          element.onclick = () => {
+            console.log(key + "번버튼");
+            if (1) {
+              socket.emit("joinRoom", key, users_data, join_num);
+              socket.on("joinRoom", (room, users_data, join_num) => {
+                // join_check_=
+              });
+            }
+          };
+        }
+      }
+      // room_btn[].onclick = () => {
+      //   // room_bt;
+      //   if (users_data != null) {
+      //     console.log("버튼");
+      //     // 안받아
+      //     if (join_num == 2) {
+      //       return;
+      //     }
+      //     if (join_user_check == 1) {
+      //       return;
+      //     }
+      //     socket.emit("joinRoom", users_data, r);
+      //     // socket.on("joinRoom", (_temp) => {
+      //     //   join_num = _temp;
+      //     //   join_user_check = 1;
+      //     //   join_check.innerHTML = `( ${join_num} / 2 )`;
+      //     //   console.log(join_num);
+      //     // });
+      //     // room에 넣어주기;
+      //   }
+      // };
     </script>
 
-    <script src="public/js/client.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.6.0.min.js"
       integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="

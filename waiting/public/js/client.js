@@ -1,4 +1,5 @@
 const socket = io();
+console.log("대기실 소켓");
 
 let username;
 
@@ -14,10 +15,12 @@ do {
 
 socket.emit("new-user-joined", username);
 
-socket.on("user-connected", (socket_name) => {
+let users_data = [];
+socket.on("user-connected", (socket_name, user_address) => {
   userJoin(socket_name, "님이 들어왔어요");
+  users_data = [socket_name, user_address];
 });
-
+console.log(users_data);
 function userJoin(name, result) {
   let div = document.createElement("div");
   div.classList.add("user-join");
@@ -30,9 +33,10 @@ function userJoin(name, result) {
 socket.on("user-disconnected", (user) => {
   userJoin(user, "님이 나갔어요");
 });
-
+let users_check = [];
 socket.on("user-list", (users) => {
   users_list.innerHTML = "";
+  users_check = [];
   users_arr = Object.values(users);
   for (i = 0; i < users_arr.length; i++) {
     let p = document.createElement("p");

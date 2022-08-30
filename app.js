@@ -31,9 +31,9 @@ app.set("views", path.join(__dirname));
 // html을 제외한 다른 파일들 경로 지정
 app.use(express.static(__dirname + "/intro"));
 app.use("/login/", express.static(path.join(__dirname + "/login")));
-// app.use("/intro/", express.static(path.join(__dirname + "/intro")));
 app.use("/join/", express.static(path.join(__dirname + "/join")));
 app.use("/waiting/", express.static(path.join(__dirname + "/waiting")));
+app.use("/game/", express.static(path.join(__dirname + "/game")));
 // DB 모듈?용 파일 경로 지정
 app.use("/config/", express.static(path.join(__dirname + "/config")));
 app.use("/model/", express.static(path.join(__dirname + "/model")));
@@ -205,13 +205,26 @@ app.post("/login", (req, res) => {
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
 let users = {};
+let room_1 = [];
+let room_2 = [];
+let room_3 = [];
 
 io.on("connection", (socket) => {
   console.log("소켓 연결");
   // waiting 소켓 컨트롤
+
+  // 방 입장 주소 넘기기
+  socket.on("joinRoom", (room, users_data, join_num) => {
+    if (room_1.forEach(users_data)) {
+    }
+    let _temp = join_num + 1;
+    io.to(room).emit("joinRoom", room, users_data, _temp);
+    // socket.emit("joinRoom", _temp);
+  });
+
   socket.on("new-user-joined", (username) => {
     users[socket.id] = username;
-    io.emit("user-connected", username);
+    io.emit("user-connected", username, socket.id);
     io.emit("user-list", users);
   });
 

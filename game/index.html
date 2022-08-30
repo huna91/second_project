@@ -8,6 +8,7 @@
     <!-- <script src="./node_modules/three/examples/jsm/loaders/GLTFLoader.js"></script> -->
     <script src="/game/js/client_world.js"></script>
 
+    <link rel="stylesheet" href="./css/explane.css" />
     <style>
       body {
         margin: 0px;
@@ -16,26 +17,57 @@
     </style>
   </head>
   <body>
+    <div class="ex_wrap">
+      <div id="explane">
+        <div class="text">
+          <h1>"나 잡아봐~~라" 게임하기</h1>
+          <h1>########## 게임 설명 ##########</h1>
+          <ul class="line_1">
+            <li>승리방법 : 움직이는 상대방을 먼저 잡으면 승리 ㅋ</li>
+            <li>
+              키 설명
+              <ul class="line_2">
+                <li>마우스 좌클릭 : 상대방 잡기</li>
+                <li>w : 앞으로 가기</li>
+                <li>s : 뒤로 가기</li>
+                <li>a : 왼쪽으로 돌기</li>
+                <li>d : 오른쪽으로 돌기</li>
+                <li>space : 1초 마비걸기</li>
+              </ul>
+            </li>
+            <li>그럼 즐겜요</li>
+          </ul>
+          <button id="game_start_btn">게임시작</button>
+        </div>
+      </div>
+    </div>
     <div id="container"></div>
-    <script>
-      var socket = io();
-
-      socket.on("updatePosition", function (data) {
-        updatePlayerPosition(data);
-      });
-      socket.on("connect", function () {
-        loadWorld();
-        socket.emit("requestOldPlayers", {});
-      });
-      socket.on("createPlayer", function (data) {
-        createPlayer(data);
-      });
-      socket.on("addOtherPlayer", function (data) {
-        addOtherPlayer(data);
-      });
-      socket.on("removeOtherPlayer", function (data) {
-        removeOtherPlayer(data);
-      });
-    </script>
   </body>
+  <script>
+    let ex_active = document.querySelector(".ex_wrap");
+    game_start_btn.onclick = () => {
+      console.log(ex_active);
+      ex_active.className += " activeGame";
+      console.log(game_start_btn.classList);
+    };
+
+    const socket = io();
+
+    socket.on("updatePosition", function (data) {
+      updatePlayerPosition(data);
+    });
+    socket.on("connect", function () {
+      loadWorld();
+      socket.emit("requestOldPlayers", {});
+    });
+    socket.on("createPlayer", function (data) {
+      createPlayer(data);
+    });
+    socket.on("addOtherPlayer", function (data) {
+      addOtherPlayer(data);
+    });
+    socket.on("removeOtherPlayer", function (data) {
+      removeOtherPlayer(data);
+    });
+  </script>
 </html>
