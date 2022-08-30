@@ -184,7 +184,7 @@ app.post("/login", (req, res) => {
             }
           );
           // 쿼리문으로 DB에 refresh token을 저장
-          const sql = "UPDATE users SET refresh_token=? WHERE user_i_d=?;";
+          const sql = "UPDATE users SET refresh_token=? WHERE user_id=?;";
           client.query(sql, [refreshToken, id]);
           // 세션에 각 토큰값을 할당
           req.session.access_token = accessToken;
