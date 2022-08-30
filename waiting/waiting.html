@@ -41,36 +41,30 @@
           </div>
         </div>
         <div class="room_space">
-          <form action="" method="post">
-            <div class="room_1">
-              <h1>1번방</h1>
-              <h1 id="join_check_1">( 0 / 2 )</h1>
-              <input style="display: none" value="1" name="room" />
-              <button type="submit" id="room_btn_1" class="room_option">
-                입장
-              </button>
-            </div>
-          </form>
-          <form action="" method="post">
-            <div class="room_2">
-              <h1>2번방</h1>
-              <h1 id="join_check_2">( 0 / 2 )</h1>
-              <input style="display: none" value="2" name="room" />
-              <button type="submit" id="room_btn_2" class="room_option">
-                입장
-              </button>
-            </div>
-          </form>
-          <form action="" method="post">
-            <div class="room_3">
-              <h1>3번방</h1>
-              <h1 id="join_check_3">( 0 / 2 )</h1>
-              <input style="display: none" value="3" name="room" />
-              <button type="submit" id="room_btn_3" class="room_option">
-                입장
-              </button>
-            </div>
-          </form>
+          <!-- <form action="" method="post"> -->
+          <div class="room_1">
+            <h1>1번방</h1>
+            <h1 class="join_check">( 0 / 2 )</h1>
+            <input style="display: none" value="1" name="room" />
+            <button id="room_btn_1" class="room_option">입장</button>
+          </div>
+          <!-- </form>
+          <form action="" method="post"> -->
+          <div class="room_2">
+            <h1>2번방</h1>
+            <h1 class="join_check">( 0 / 2 )</h1>
+            <input style="display: none" value="2" name="room" />
+            <button id="room_btn_2" class="room_option">입장</button>
+          </div>
+          <!-- </form>
+          <form action="" method="post"> -->
+          <div class="room_3">
+            <h1>3번방</h1>
+            <h1 class="join_check">( 0 / 2 )</h1>
+            <input style="display: none" value="3" name="room" />
+            <button id="room_btn_3" class="room_option">입장</button>
+          </div>
+          <!-- </form> -->
           <!-- <button type="submit" id="sub_btn"></button> -->
         </div>
       </div>
@@ -106,19 +100,24 @@
         }
       });
       // users_data : 유저 아이디
-      let join_num = 0;
-      let join_user_check = 0;
+      let _key;
       let room_btn = document.querySelectorAll(".room_option");
+      let join_check = document.querySelectorAll(".join_check");
       for (const key in room_btn) {
         if (Object.hasOwnProperty.call(room_btn, key)) {
           const element = room_btn[key];
           element.onclick = () => {
+            _key = key;
+            socket.emit("roomJoin", _key);
             // 제출 버튼 입력
             // sub_btn.onclick = () => {};
             console.log(key + "번버튼");
           };
         }
       }
+      socket.on("roomJoin", (userNum) => {
+        join_check[_key].innerHTML = `( ${userNum} / 2 )`;
+      });
       // setInterval(() => {
       //   join_check.innerHTML = `( ${join_num} / 2 )`;
       // }, 500);
