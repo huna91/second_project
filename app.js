@@ -92,7 +92,7 @@ app.get("/", (req, res) => {
 
 // 미들웨어 생성. 토큰 확인하는 함수
 const middleware = (req, res, next) => {
-  const { access_token, refresh_token } = req.session;
+  const { access_token, refresh_token, ids } = req.session;
   // access_token 확인
   jwt.verify(access_token, process.env.ACCESS_TOKEN_KEY, (err, acc_decoded) => {
     if (err) {
@@ -118,6 +118,7 @@ const middleware = (req, res, next) => {
                   req.session.access_token = accessToken;
                   next();
                 } else {
+                  console.log("ID :", ids, ", refresh token 만료됨.");
                   res.render("login/err/relogin");
                 }
               }
@@ -251,8 +252,8 @@ app.get("/waiting", middleware, (req, res) => {
 // 대기실 방 입장인원 컨트롤
 app.post("/waiting", (req, res) => {
   // 방 값 가져오기
-  let { room } = req.body.room;
-  console.log(req.body.room);
+  let { room } = req.body;
+  console.log(room);
   // const { room1, room2, room3 } = req.body;
   // let _rooms = [room1, room2, room3];
   // User.findOne({
