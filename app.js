@@ -12,6 +12,7 @@ const session = require("express-session");
 const world = require("./game/js/server_world");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
+const Room = require("./model/room");
 // express 실행
 const app = express();
 // 포트번호
@@ -179,67 +180,67 @@ app.post("/signup", (req, res) => {
     });
   }
 });
-
-// login/login 페이지 정보 받아서 확인후 넘기기
-app.post("/login", (req, res) => {
-  const { id, password } = req.body;
-  console.log(id, "로그인 시도");
-  // 데이터베이스에서 입력한 ID가 있는지 검색
-  User.findOne({
-    where: {
-      userID: id,
-    },
-  }).then((e) => {
-    // 아이디가 없으면
-    if (e === null) {
-      console.log(id, "로그인 실패");
-      res.render("login/err/login_err");
-    } else {
-      // 아이디가 있으면 입력한 패스워드와 DB의 패스워드 비교
-      bcrypt.compare(password, e.password, (err, same) => {
-        // 패스워드가 맞으면
-        if (same) {
-          console.log(id, "로그인 성공");
-          // access token 발급
-          const accessToken = jwt.sign(
-            {
-              userID: id,
-            },
-            process.env.ACCESS_TOKEN_KEY,
-            {
-              // 유효기간 1시간
-              expiresIn: "1h",
-            }
-          );
-          // resfresh token 발급
-          const refreshToken = jwt.sign(
-            {
-              userID: id,
-            },
-            process.env.REFRESH_TOKEN_KEY,
-            {
-              expiresIn: "1d",
-            }
-          );
-          // 쿼리문으로 DB에 refresh token을 저장
-          const sql = "UPDATE users SET refresh_token=? WHERE user_i_d=?;";
-          client.query(sql, [refreshToken, id]);
-          // 세션에 각 토큰값을 할당, express-session에 저장
-          req.session.access_token = accessToken;
-          req.session.refresh_token = refreshToken;
-          req.session.ids = id;
-          //console.log(accessToken, refreshToken);
-          // 페이지 이동
-          res.redirect("/waiting");
-        } else {
-          // 패스워드가 틀리면
-          console.log("password Error");
-          res.render("login/err/login_err");
-        }
-      });
-    }
+let sql =
+  // login/login 페이지 정보 받아서 확인후 넘기기
+  app.post("/login", (req, res) => {
+    const { id, password } = req.body;
+    console.log(id, "로그인 시도");
+    // 데이터베이스에서 입력한 ID가 있는지 검색
+    User.findOne({
+      where: {
+        userID: id,
+      },
+    }).then((e) => {
+      // 아이디가 없으면
+      if (e === null) {
+        console.log(id, "로그인 실패");
+        res.render("login/err/login_err");
+      } else {
+        // 아이디가 있으면 입력한 패스워드와 DB의 패스워드 비교
+        bcrypt.compare(password, e.password, (err, same) => {
+          // 패스워드가 맞으면
+          if (same) {
+            console.log(id, "로그인 성공");
+            // access token 발급
+            const accessToken = jwt.sign(
+              {
+                userID: id,
+              },
+              process.env.ACCESS_TOKEN_KEY,
+              {
+                // 유효기간 1시간
+                expiresIn: "1h",
+              }
+            );
+            // resfresh token 발급
+            const refreshToken = jwt.sign(
+              {
+                userID: id,
+              },
+              process.env.REFRESH_TOKEN_KEY,
+              {
+                expiresIn: "1d",
+              }
+            );
+            // 쿼리문으로 DB에 refresh token을 저장
+            const sql = "UPDATE users SET refresh_token=? WHERE user_i_d=?;";
+            client.query(sql, [refreshToken, id]);
+            // 세션에 각 토큰값을 할당, express-session에 저장
+            req.session.access_token = accessToken;
+            req.session.refresh_token = refreshToken;
+            req.session.ids = id;
+            //console.log(accessToken, refreshToken);
+            // 페이지 이동
+            res.redirect("/waiting");
+          } else {
+            // 패스워드가 틀리면
+            console.log("password Error");
+            res.render("login/err/login_err");
+          }
+        });
+      }
+    });
   });
-});
 
 // 대기실 입장페이지 불러오는거
 app.get("/waiting", middleware, (req, res) => {
@@ -249,25 +250,25 @@ app.get("/waiting", middleware, (req, res) => {
 });
 
 // 대기실 방 입장인원 컨트롤
-app.post("/waiting", (req, res) => {
-  // 방 값 가져오기
-  let { room } = req.body.room;
-  console.log(req.body.room);
-  // const { room1, room2, room3 } = req.body;
-  // let _rooms = [room1, room2, room3];
-  // User.findOne({
-  //   where: {
-  //     room: ,
-  //   },
-  // })
-});
+// app.post("/waiting", (req, res) => {
+//   // 방 값 가져오기
+//   let { room } = req.body;
+//   console.log(room);
+//   // const { room1, room2, room3 } = req.body;
+//   // let _rooms = [room1, room2, room3];
+//   // User.findOne({
+//   //   where: {
+//   //     room: ,
+//   //   },
+//   // })
+// });
 
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
 let users = {};
 
 io.on("connection", (socket) => {
-  console.log("소켓 연결");
+  console.log("소켓 연결 - appjs");
   // waiting 소켓 컨트롤
   socket.on("new-user-joined", (username) => {
     users[socket.id] = username;
@@ -275,11 +276,11 @@ io.on("connection", (socket) => {
     io.emit("user-list", users);
   });
 
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("user-disconnected", users[socket.id]);
-    delete users[socket.id];
-    io.emit("user-list", users);
-  });
+  // socket.on("disconnect", () => {
+  //   socket.broadcast.emit("user-disconnected", users[socket.id]);
+  //   delete users[socket.id];
+  //   io.emit("user-list", users);
+  // });
 
   socket.on("message", (data) => {
     socket.broadcast.emit("message", { user: data.user, msg: data.msg });
@@ -304,7 +305,29 @@ io.on("connection", (socket) => {
     let newData = world.updatePlayerData(data);
     socket.broadcast.emit("updatePosition", newData);
   });
+
+  // room 컨트롤
+  let rooms = [0, 0, 0];
+  socket.on("roomJoin", (key) => {
+    console.log(
+      Room.findOne({
+        where: {
+          room: key,
+        },
+      })
+    );
+    // .then((e) => {});
+    userNum = rooms[key] + 1;
+    socket.emit("roomJoin", userNum);
+  });
+
+  // 대기실에서 접속 끊어서 이벤트 이름 변경
   socket.on("disconnect", function () {
+    // 대기실 접속 종료
+    socket.broadcast.emit("user-disconnected", users[socket.id]);
+    delete users[socket.id];
+    io.emit("user-list", users);
+    // game에서 접속종료
     console.log("user disconnected");
     io.emit("removeOtherPlayer", player);
     world.removePlayer(player);
