@@ -1,5 +1,7 @@
 node_modules
+CHAT ROOM/
 game/app.js
-package-lock.json
-구조.pptx
+*.pptx
 지워.txt
+다이어그램.JPG
+package-lock.json
