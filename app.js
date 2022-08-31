@@ -13,6 +13,7 @@ const world = require("./game/js/server_world");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User } = require("./model");
 const Room = require("./model/room");
+const e = require("express");
 // express 실행
 const app = express();
 // 포트번호
@@ -249,20 +250,6 @@ app.get("/waiting", middleware, (req, res) => {
   res.render("waiting/waiting", { user: username.ids });
 });
 
-// 대기실 방 입장인원 컨트롤
-// app.post("/waiting", (req, res) => {
-//   // 방 값 가져오기
-//   let { room } = req.body;
-//   console.log(room);
-//   // const { room1, room2, room3 } = req.body;
-//   // let _rooms = [room1, room2, room3];
-//   // User.findOne({
-//   //   where: {
-//   //     room: ,
-//   //   },
-//   // })
-// });
-
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
 let users = {};
@@ -271,8 +258,9 @@ io.on("connection", (socket) => {
   console.log("소켓 연결 - appjs");
   // waiting 소켓 컨트롤
   socket.on("new-user-joined", (username) => {
+    const _address = socket.id;
     users[socket.id] = username;
-    io.emit("user-connected", username);
+    io.emit("user-connected", username, _address);
     io.emit("user-list", users);
   });
 
@@ -306,19 +294,87 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("updatePosition", newData);
   });
 
-  // room 컨트롤
+  // room 항목 만들기
+  // Room.create({
+  //   room: 0,
+  //   count: 0,
+  // });
+  // Room.create({
+  //   room: 1,
+  //   count: 0,
+  // });
+  // Room.create({
+  //   room: 2,
+  //   count: 0,
+  // });
+
   let rooms = [0, 0, 0];
-  socket.on("roomJoin", (key) => {
-    console.log(
-      Room.findOne({
-        where: {
-          room: key,
-        },
-      })
-    );
-    // .then((e) => {});
-    userNum = rooms[key] + 1;
+  // 게임 방 입장
+  socket.on("roomJoin", (key, user_address) => {
+    // 카운트값 업데이트
+    Room.findOne({
+      where: {
+        room: key,
+      },
+    }).then((e) => {
+      // 카운트 값 불러와서 증가
+      let _temp = Number(e.dataValues.count);
+      _temp = _temp + 1;
+      // 유저 데이터 넣기
+      // console.log("유저 " + e.dataValues.user_1);
+      if (e.dataValues.user_1 == null) {
+        const _sql = "UPDATE rooms SET user_1=? WHERE room=?;";
+        client.query(_sql, [user_address, key]);
+      } else {
+        const _sql = "UPDATE rooms SET user_2=? WHERE room=?;";
+        client.query(_sql, [user_address, key]);
+      }
+      const sql = "UPDATE rooms SET count=? WHERE room=?;";
+      // 카운트 데이터베이스 업데이트
+      client.query(sql, [_temp, key]);
+    });
+    let userNum = rooms[key] + 1;
     socket.emit("roomJoin", userNum);
+  });
+
+  socket.on("roomOut", (key, user_address) => {
+    // 유저 이름을 키값으로 찾아 방에서 빼기
+    Room.findOne({
+      where: {
+        user_1: user_address,
+      },
+    })
+      .then((e) => {
+        // user_1에 들어있을때
+        let _temp = Number(e.dataValues.count);
+        let _key = Number(e.dataValues.room);
+        _temp = _temp - 1;
+        const sql = "UPDATE rooms SET count=? WHERE user_1=?;";
+        client.query(sql, [_temp, user_address]);
+        const _sql = "UPDATE rooms SET user_1=null WHERE user_1=?;";
+        client.query(_sql, [user_address]);
+        console.log("기존카운트" + rooms[_key]);
+        let userNum = rooms[_key] - 1;
+        socket.emit("roomOut", userNum, _key);
+      })
+      .catch(() => {
+        Room.findOne({
+          where: {
+            user_2: user_address,
+          },
+        }).then((e) => {
+          // user_2에 들어있을때
+          let _temp = Number(e.dataValues.count);
+          let _key = Number(e.dataValues.room);
+          _temp = _temp - 1;
+          const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
+          client.query(sql, [_temp, user_address]);
+          const _sql = "UPDATE rooms SET user_2=null WHERE user_2=?;";
+          client.query(_sql, [user_address]);
+          let userNum = rooms[_key] - 1;
+          socket.emit("roomOut", userNum, _key);
+        });
+      });
   });
 
   // 대기실에서 접속 끊어서 이벤트 이름 변경

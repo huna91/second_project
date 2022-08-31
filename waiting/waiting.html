@@ -75,7 +75,6 @@
     </script>
     <script src="public/js/client.js"></script>
     <script>
-
       // const socket = io.connect();
 
       // 접속유저 주소 받아오기
@@ -99,8 +98,10 @@
           document.getElementById("user-send").click();
         }
       });
-      // users_data : 유저 아이디
+
+      // 방 컨트롤
       let _key;
+      let user_joined = 0;
       let room_btn = document.querySelectorAll(".room_option");
       let join_check = document.querySelectorAll(".join_check");
       for (const key in room_btn) {
@@ -108,7 +109,16 @@
           const element = room_btn[key];
           element.onclick = () => {
             _key = key;
-            socket.emit("roomJoin", _key);
+            if (user_joined == 1) {
+              alert("방에서 나옴");
+              socket.emit("roomOut", _key, user_address);
+              user_joined = 0;
+            } else {
+              let __key = Number(_key) + 1;
+              alert(`${__key}번 방 입장`);
+              socket.emit("roomJoin", _key, user_address);
+              user_joined = 1;
+            }
             // 제출 버튼 입력
             // sub_btn.onclick = () => {};
             console.log(key + "번버튼");
@@ -118,30 +128,10 @@
       socket.on("roomJoin", (userNum) => {
         join_check[_key].innerHTML = `( ${userNum} / 2 )`;
       });
-      // setInterval(() => {
-      //   join_check.innerHTML = `( ${join_num} / 2 )`;
-      // }, 500);
-      // room_btn[].onclick = () => {
-      //   // room_bt;
-      //   if (users_data != null) {
-      //     console.log("버튼");
-      //     // 안받아
-      //     if (join_num == 2) {
-      //       return;
-      //     }
-      //     if (join_user_check == 1) {
-      //       return;
-      //     }
-      //     socket.emit("joinRoom", users_data, r);
-      //     // socket.on("joinRoom", (_temp) => {
-      //     //   join_num = _temp;
-      //     //   join_user_check = 1;
-      //     //   join_check.innerHTML = `( ${join_num} / 2 )`;
-      //     //   console.log(join_num);
-      //     // });
-      //     // room에 넣어주기;
-      //   }
-      // };
+      socket.on("roomOut", (userNum, change_key) => {
+        console.log(userNum);
+        join_check[change_key].innerHTML = `( ${userNum} / 2 )`;
+      });
     </script>
 
     <script
