@@ -41,15 +41,28 @@
         </div>
       </div>
     </div>
+    <div class="result disapear">
+      <div class="result_inner">
+        <div class="winner">
+          <h6>########### 결 과 ############</h6>
+          <h3>--Winner--</h3>
+          <h1>나야나</h1>
+        </div>
+        <div>
+          <a href="/waiting"><button class="return_btn">돌아가기</button></a>
+        </div>
+      </div>
+    </div>
     <div id="container"></div>
   </body>
   <script>
     let ex_active = document.querySelector(".ex_wrap");
     game_start_btn.onclick = () => {
-      console.log(ex_active);
       ex_active.className += " activeGame";
-      console.log(game_start_btn.classList);
     };
+    let disapear = document.querySelector(".disapear");
+    let returnBtn = document.querySelector(".return_btn");
+
 
     const socket = io();
 
