@@ -278,6 +278,8 @@ io.on("connection", (socket) => {
   let id = socket.id;
   world.addPlayer(id);
 
+  // 페이지 접속유저 주소 받아오는거
+
   let player = world.playerForId(id);
   socket.emit("createPlayer", player);
 
@@ -320,6 +322,7 @@ io.on("connection", (socket) => {
       // 카운트 값 불러와서 증가
       let _temp = Number(e.dataValues.count);
       _temp = _temp + 1;
+      rooms[key] = _temp;
       // 유저 데이터 넣기
       // console.log("유저 " + e.dataValues.user_1);
       if (e.dataValues.user_1 == null) {
@@ -333,6 +336,7 @@ io.on("connection", (socket) => {
       // 카운트 데이터베이스 업데이트
       client.query(sql, [_temp, key]);
     });
+
     let userNum = rooms[key] + 1;
     socket.emit("roomJoin", userNum);
   });
@@ -348,6 +352,7 @@ io.on("connection", (socket) => {
         // user_1에 들어있을때
         let _temp = Number(e.dataValues.count);
         let _key = Number(e.dataValues.room);
+        rooms[_key] = _temp;
         _temp = _temp - 1;
         const sql = "UPDATE rooms SET count=? WHERE user_1=?;";
         client.query(sql, [_temp, user_address]);
