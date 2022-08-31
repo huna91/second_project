@@ -249,6 +249,11 @@ app.get("/waiting", middleware, (req, res) => {
   res.render("waiting/waiting", { user: username.ids });
 });
 
+app.get("/room1", middleware, (req, res) => {
+  const username = req.session;
+  res.render("waiting/room1", { user : username.ids });
+})
+
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
 let users = {};
