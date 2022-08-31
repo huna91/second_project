@@ -79,6 +79,14 @@
 
       // 접속유저 주소 받아오기
       // socket.emit("joinChat", "hyhy");
+      setInterval(() => {
+        socket.emit("joinChat");
+      }, 500);
+      socket.on("joinChat", (rooms) => {
+        join_check[0].innerHTML = `( ${rooms[0]} / 2 )`;
+        join_check[1].innerHTML = `( ${rooms[1]} / 2 )`;
+        join_check[2].innerHTML = `( ${rooms[2]} / 2 )`;
+      });
 
       let uwindow = document.querySelector(".users-window");
       function show_hide() {
@@ -129,7 +137,6 @@
         join_check[_key].innerHTML = `( ${userNum} / 2 )`;
       });
       socket.on("roomOut", (userNum, change_key) => {
-        console.log(userNum);
         join_check[change_key].innerHTML = `( ${userNum} / 2 )`;
       });
     </script>

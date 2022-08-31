@@ -11,9 +11,9 @@ const mysql = require("mysql2");
 const session = require("express-session");
 const world = require("./game/js/server_world");
 // model/index.js 에서 키값 가져오기
-const { sequelize, User } = require("./model");
-const Room = require("./model/room");
-const e = require("express");
+const { sequelize, User, Room, Game } = require("./model");
+// const Room = require("./model/room");
+
 // express 실행
 const app = express();
 // 포트번호
@@ -75,7 +75,7 @@ const client = mysql.createConnection({
   multipleStatements: true,
 });
 
-// sequelize
+// *******************************초기화*********************************
 sequelize
   .sync({ force: false })
   .then(() => {
@@ -278,8 +278,6 @@ io.on("connection", (socket) => {
   let id = socket.id;
   world.addPlayer(id);
 
-  // 페이지 접속유저 주소 받아오는거
-
   let player = world.playerForId(id);
   socket.emit("createPlayer", player);
 
@@ -296,7 +294,54 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("updatePosition", newData);
   });
 
-  // room 항목 만들기
+  console.log("appjs쪽" + socket.id);
+  socket.on("gameStart", () => {
+    let _id = socket.id;
+    socket.emit("gameStart", _id);
+  });
+
+  let check_users = [];
+  socket.on("gameReady", (ImUsr, room) => {
+    Game.findOne({
+      where: {
+        room: 0,
+      },
+    }).then((e) => {
+      if (e.dataValues.user_1 != null) {
+        check_users.push(e.dataValues.user_1);
+      }
+      if (check_users[0] == null) {
+        const sql = "UPDATE games SET user_1=? WHERE room=?;";
+        client.query(sql, [ImUsr, room]);
+      } else {
+        const sql = "UPDATE games SET user_2=? WHERE room=?;";
+        client.query(sql, [ImUsr, room]);
+      }
+      check_users.push(ImUsr);
+      console.log(check_users);
+      if (check_users.length == 2) {
+        const sql = "UPDATE games SET active=? WHERE room=?;";
+        client.query(sql, [1, room]);
+      }
+    });
+  });
+  socket.on("active_check", (room) => {
+    Game.findOne({
+      where: {
+        room: room,
+      },
+    }).then((e) => {
+      if (e.dataValues.active == 1) {
+        socket.emit("game_go");
+      }
+    });
+  });
+  // Game.create({
+  //   room: 0,
+  //   active: 0,
+  // });
+
+  // *******************room 항목 만들기***************************
   // Room.create({
   //   room: 0,
   //   count: 0,
@@ -310,9 +355,37 @@ io.on("connection", (socket) => {
   //   count: 0,
   // });
 
+  // 대기실 컨트롤
   let rooms = [0, 0, 0];
-  // 게임 방 입장
+  let userOut_key = false;
+  let outKey = [];
+  socket.on("joinChat", () => {
+    Room.findOne({
+      where: {
+        room: "0",
+      },
+    }).then((e) => {
+      rooms[0] = Number(e.dataValues.count);
+    });
+    Room.findOne({
+      where: {
+        room: "1",
+      },
+    }).then((e) => {
+      rooms[1] = Number(e.dataValues.count);
+    });
+    Room.findOne({
+      where: {
+        room: "2",
+      },
+    }).then((e) => {
+      rooms[2] = Number(e.dataValues.count);
+    });
+    socket.emit("joinChat", rooms);
+  });
   socket.on("roomJoin", (key, user_address) => {
+    userOut_key = true;
+    outKey[0] = key;
     // 카운트값 업데이트
     Room.findOne({
       where: {
@@ -322,6 +395,7 @@ io.on("connection", (socket) => {
       // 카운트 값 불러와서 증가
       let _temp = Number(e.dataValues.count);
       _temp = _temp + 1;
+      outKey[1] = _temp;
       rooms[key] = _temp;
       // 유저 데이터 넣기
       // console.log("유저 " + e.dataValues.user_1);
@@ -343,6 +417,7 @@ io.on("connection", (socket) => {
 
   socket.on("roomOut", (key, user_address) => {
     // 유저 이름을 키값으로 찾아 방에서 빼기
+    userOut_key = false;
     Room.findOne({
       where: {
         user_1: user_address,
@@ -385,12 +460,51 @@ io.on("connection", (socket) => {
   // 대기실에서 접속 끊어서 이벤트 이름 변경
   socket.on("disconnect", function () {
     // 대기실 접속 종료
-    socket.broadcast.emit("user-disconnected", users[socket.id]);
+    socket.broadcast.emit(
+      "user-disconnected",
+      users[socket.id],
+      userOut_key,
+      outKey,
+      socket.id
+    );
     delete users[socket.id];
     io.emit("user-list", users);
     // game에서 접속종료
-    console.log("user disconnected");
+    console.log("유저 연결 종료");
     io.emit("removeOtherPlayer", player);
     world.removePlayer(player);
+  });
+  // 강제로 종료했을 때
+  socket.on("user_kick", (userAdd) => {
+    Room.findOne({
+      where: {
+        user_1: userAdd,
+      },
+    })
+      .then((e) => {
+        let _temp = Number(e.dataValues.count);
+        let _key = Number(e.dataValues.room);
+        _temp = _temp - 1;
+        rooms[_key] = _temp;
+        const sql = "UPDATE rooms SET count=? WHERE user_1=?;";
+        client.query(sql, [_temp, userAdd]);
+        const _sql = "UPDATE rooms SET user_1=null WHERE user_1=?;";
+        client.query(_sql, [userAdd]);
+      })
+      .catch(() => {
+        Room.findOne({
+          where: {
+            user_2: userAdd,
+          },
+        }).then((ev) => {
+          let __temp = Number(ev.dataValues.count);
+          __temp = __temp - 1;
+          rooms[_key] = __temp;
+          const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
+          client.query(sql, [__temp, userAdd]);
+          const _sql = "UPDATE rooms SET user_2=null WHERE user_2=?;";
+          client.query(_sql, [userAdd]);
+        });
+      });
   });
 });

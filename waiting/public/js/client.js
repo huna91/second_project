@@ -16,7 +16,6 @@ socket.on("user-connected", (socket_name, address) => {
   user_address = address;
   userJoin(socket_name, "님이 들어왔어요");
 });
-
 function userJoin(name, result) {
   let div = document.createElement("div");
   div.classList.add("user-join");
@@ -26,7 +25,12 @@ function userJoin(name, result) {
   chats.scrollTop = chats.scrollHeight;
 }
 
-socket.on("user-disconnected", (user) => {
+socket.on("user-disconnected", (user, userOut_key, outKey, userAdd) => {
+  if (userOut_key == true) {
+    // 방 접속 누르고 나갔을때
+    join_check[outKey[0]].innerHTML = `( ${Number(outKey[1]) - 1} / 2 )`;
+    socket.emit("user_kick", userAdd);
+  }
   userJoin(user, "님이 나갔어요");
 });
 
