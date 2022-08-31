@@ -11,9 +11,8 @@ const mysql = require("mysql2");
 const session = require("express-session");
 const world = require("./game/js/server_world");
 // model/index.js 에서 키값 가져오기
-const { sequelize, User } = require("./model");
-const Room = require("./model/room");
-const e = require("express");
+const { sequelize, User, Room } = require("./model");
+//const e = require("express");
 // express 실행
 const app = express();
 // 포트번호
