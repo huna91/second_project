@@ -6,12 +6,14 @@ let users_count = document.querySelector(".users-count");
 let msg_send = document.querySelector("#user-send");
 let user_msg = document.querySelector("#user-msg");
 
+let user_address;
 // do {
 //   username = prompt("이름을 입력하세요: ");
 // } while (!username);
 
 socket.emit("new-user-joined", username);
-socket.on("user-connected", (socket_name) => {
+socket.on("user-connected", (socket_name, address) => {
+  user_address = address;
   userJoin(socket_name, "님이 들어왔어요");
 });
 

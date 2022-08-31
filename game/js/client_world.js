@@ -46,11 +46,11 @@ let randomColor = function () {
     hexCode += hexValues[_randomNum];
   }
   let result = hexCode.valueOf();
-  // console.log(result);
+  console.log(result);
   // `${_colorNum[0]}${_colorNum[1]}${_colorNum[2]}${_colorNum[3]}${_colorNum[4]}${_colorNum[5]}`;
   return result;
 };
-// console.log(randomColor());
+console.log(randomColor());
 
 var loadWorld = function () {
   init();
@@ -146,12 +146,12 @@ var loadWorld = function () {
 
   function onMouseClick() {
     intersects = calculateIntersects(event);
-    // console.log(intersects[0]);
-    // console.log(intersects[1]);
-    // console.log(intersects[2]);
-    // console.log(otherPlayers[0]);
-    // console.log(otherPlayers[1]);
-    // console.log(otherPlayers[2]);
+    console.log(intersects[0]);
+    console.log(intersects[1]);
+    console.log(intersects[2]);
+    console.log(otherPlayers[0]);
+    console.log(otherPlayers[1]);
+    console.log(otherPlayers[2]);
     if (intersects.length > 0) {
       //If object is intersected by mouse pointer, do something
       if (intersects[0].object == otherPlayers[1]) {
@@ -275,9 +275,9 @@ var updatePlayerPosition = function (data) {
   somePlayer.position.x = data.x + Number(randomNumber_maker(100) - 50);
   somePlayer.position.y = data.y;
   somePlayer.position.z = data.z + Number(randomNumber_maker(100) - 50);
-  // console.log(somePlayer.position.x);
-  // console.log(somePlayer.position.y);
-  // console.log(somePlayer.position.z);
+  console.log(somePlayer.position.x);
+  console.log(somePlayer.position.y);
+  console.log(somePlayer.position.z);
   somePlayer.rotation.x = data.r_x;
   somePlayer.rotation.y = data.r_y;
   somePlayer.rotation.z = data.r_z;

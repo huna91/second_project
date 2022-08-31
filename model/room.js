@@ -14,6 +14,14 @@ class Room extends _sequelize.Model {
           type: _sequelize.TEXT,
           allowNull: false,
         },
+        user_1: {
+          type: _sequelize.STRING(24),
+          allowNull: true,
+        },
+        user_2: {
+          type: _sequelize.STRING(24),
+          allowNull: true,
+        },
       },
       {
         sequelize,
