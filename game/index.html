@@ -44,15 +44,28 @@
     <div id="container"></div>
   </body>
   <script>
+    const socket = io();
     let ex_active = document.querySelector(".ex_wrap");
     game_start_btn.onclick = () => {
-      console.log(ex_active);
-      ex_active.className += " activeGame";
-      console.log(game_start_btn.classList);
+      socket.emit("gameStart");
     };
+    let ImUsr = null;
+    let roomNum = 0;
+    socket.on("gameStart", (_id) => {
+      if (ImUsr == null) {
+        ImUsr = _id;
+        // 데이터 베이스에서 받아서 room 번호 넣어줘야함
+        socket.emit("gameReady", ImUsr, roomNum);
+      }
+    });
+    setInterval(() => {
+      socket.emit("active_check", roomNum);
+    }, 300);
+    socket.on("game_go", () => {
+      ex_active.className += " activeGame";
+    });
 
-    const socket = io();
-
+    
     socket.on("updatePosition", function (data) {
       updatePlayerPosition(data);
     });

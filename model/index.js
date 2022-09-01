@@ -4,6 +4,7 @@ const _sequelize = require("sequelize");
 const config = require("../config/config");
 const User = require("./users");
 const Room = require("./room");
+const Game = require("./game");
 
 // sequelize 객체 생성
 const sequelize = new _sequelize(
@@ -19,9 +20,11 @@ const DB = {};
 DB.sequelize = sequelize;
 DB.User = User;
 DB.Room = Room;
+DB.Game = Game;
 // 테이블 생성 실행
 User.init(sequelize);
 Room.init(sequelize);
+Game.init(sequelize);
 // 관계형으로 맺어주는 함수 사용
 //User.associate(DB);
 
