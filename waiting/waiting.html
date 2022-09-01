@@ -68,6 +68,12 @@
           <!-- <button type="submit" id="sub_btn"></button> -->
         </div>
       </div>
+      <div class="start_game activeGame">
+        <div class="start_inner">
+          <h1>###########게임하러 가기##########</h1>
+          <button id="return_btn">게임 GO</button>
+        </div>
+      </div>
     </main>
     <script>
       // ejs구문을 사용해서 app.get 에서 넘겨준 user:username.ids 가져옴
@@ -143,6 +149,7 @@
                 console.log(username);
                 socket.emit("roomJoin", _key, username);
                 user_joined = 1;
+                socket.emit("game_page_open", Number(_key));
               }
               // 제출 버튼 입력
               // sub_btn.onclick = () => {};
@@ -157,6 +164,14 @@
       socket.on("roomOut", (userNum, change_key) => {
         join_check[change_key].innerHTML = `( ${userNum} / 2 )`;
       });
+      let start_game = document.querySelector(".start_game");
+      socket.on("game_page_open", () => {
+        start_game.classList.remove("activeGame");
+      });
+      return_btn.onclick = function () {
+        window.location.href = "/game";
+        // 방 값,
+      };
     </script>
 
     <script

@@ -373,14 +373,17 @@ io.on("connection", (socket) => {
   // Room.create({
   //   room: 0,
   //   count: 0,
+  //   active: 0,
   // });
   // Room.create({
   //   room: 1,
   //   count: 0,
+  //   active: 0,
   // });
   // Room.create({
   //   room: 2,
   //   count: 0,
+  //   active: 0,
   // });
 
   // 대기실 컨트롤
@@ -396,7 +399,7 @@ io.on("connection", (socket) => {
   socket.on("joinChat", () => {
     Room.findOne({
       where: {
-        room: "0",
+        room: 0,
       },
     }).then((e) => {
       rooms[0] = Number(e.dataValues.count);
@@ -419,10 +422,20 @@ io.on("connection", (socket) => {
       if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
         rooms_join_user.room1 = [];
       }
+      if (e.dataValues.count == 2) {
+        Room.findOne({
+          where: {
+            room: 0,
+          },
+        }).then((e) => {
+          const sql = "UPDATE rooms SET active=? WHERE room=?;";
+          client.query(sql, [1, 0]);
+        });
+      }
     });
     Room.findOne({
       where: {
-        room: "1",
+        room: 1,
       },
     }).then((e) => {
       rooms[1] = Number(e.dataValues.count);
@@ -448,7 +461,7 @@ io.on("connection", (socket) => {
     });
     Room.findOne({
       where: {
-        room: "2",
+        room: 2,
       },
     }).then((e) => {
       rooms[2] = Number(e.dataValues.count);
@@ -475,6 +488,17 @@ io.on("connection", (socket) => {
 
     socket.emit("joinChat", rooms);
     console.log(rooms_join_user);
+  });
+  socket.on("game_page_open", (key) => {
+    Room.findOne({
+      where: {
+        room: key,
+      },
+    }).then((e) => {
+      if (e.dataValues.active == 1) {
+        socket.emit("game_page_open");
+      }
+    });
   });
 
   socket.on("roomJoin", (key, userId) => {
@@ -619,6 +643,7 @@ io.on("connection", (socket) => {
           },
         }).then((e) => {
           let __temp = Number(e.dataValues.count);
+          let _key = Number(e.dataValues.room);
           __temp = __temp - 1;
           // 유저 뺴기
           if (_key == 0) {

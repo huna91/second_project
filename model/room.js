@@ -11,7 +11,7 @@ class Room extends _sequelize.Model {
           primaryKey: true,
         },
         count: {
-          type: _sequelize.TEXT,
+          type: _sequelize.INTEGER(2),
           allowNull: false,
         },
         user_1: {
@@ -21,6 +21,10 @@ class Room extends _sequelize.Model {
         user_2: {
           type: _sequelize.STRING(24),
           allowNull: true,
+        },
+        active: {
+          type: _sequelize.INTEGER(2),
+          allowNull: false,
         },
       },
       {

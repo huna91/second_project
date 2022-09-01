@@ -168,6 +168,28 @@ main div.container div.chat-window div.user-input button {
   font-weight: 700;
   border: none;
 }
+.start_game {
+  position: absolute;
+  top: 0;
+  background-color: rgba(61, 52, 52, 0.774);
+  width: 2310px;
+  height: 1090px;
+  z-index: 2;
+}
+
+.start_inner {
+  position: absolute;
+  border: 8px solid white;
+  border-radius: 50px;
+  width: 1000px;
+  height: 800px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+.activeGame{
+  display: none;
+}
 
 @media screen and (max-width: 900px) {
   main {
