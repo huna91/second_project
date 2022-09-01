@@ -252,6 +252,11 @@ app.get("/waiting", middleware, (req, res) => {
   res.render("waiting/waiting", { user: username.ids });
 });
 
+// game 페이지 불러오는거
+app.get("/game", middleware, (req, res) => {
+  res.render("game/game.html", {myId});
+})
+
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
 let users = {};
@@ -345,7 +350,7 @@ io.on("connection", (socket) => {
         room: 0,
       },
     }).then((e) => {
-      const sql = "UPDATE games SET active=? WHERE room=?";
+      const sql = "UPDATE games SET active_end=? WHERE room=?";
       // 룸 변수 바꾸기
       client.query(sql, [0, 0]);
       // socket.emit("game_over",myId)
@@ -353,21 +358,26 @@ io.on("connection", (socket) => {
   });
   // 게임 결과 확인 및 종료
   socket.on("game_active_check", () => {
-    console.log("들왔나~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     Game.findOne({
       where: {
         room: 0,
       },
     }).then((e) => {
-      if (Number(e.dataValues.active) == 0) {
+      if (Number(e.dataValues.active_end) == 0) {
         socket.emit("game_active_check");
+        // 해당 룸 초기화
+        const sql = "UPDATE games SET user_1=?, user_2=?, active=?, active_end=? WHERE room=?;";
+        client.query(sql, [null, null, 0, 1, 0]);
       }
     });
   });
+
+
   // *******************room 항목 만들기***************************
   // Game.create({
   //   room: 0,
   //   active: 0,
+  //   active_end: 1
   // });
 
   // Room.create({
