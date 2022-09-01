@@ -337,6 +337,33 @@ io.on("connection", (socket) => {
       }
     });
   });
+  // 게임 결과
+  socket.on("result", () => {
+    Game.findOne({
+      where: {
+        // 룸 변수 바꾸기
+        room: 0,
+      },
+    }).then((e) => {
+      const sql = "UPDATE games SET active=? WHERE room=?";
+      // 룸 변수 바꾸기
+      client.query(sql, [0, 0]);
+      // socket.emit("game_over",myId)
+    });
+  });
+  // 게임 결과 확인 및 종료
+  socket.on("game_active_check", () => {
+    console.log("들왔나~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    Game.findOne({
+      where: {
+        room: 0,
+      },
+    }).then((e) => {
+      if (Number(e.dataValues.active) == 0) {
+        socket.emit("game_active_check");
+      }
+    });
+  });
   // *******************room 항목 만들기***************************
   // Game.create({
   //   room: 0,

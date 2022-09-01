@@ -155,9 +155,11 @@ var loadWorld = function () {
     if (intersects.length > 0) {
       //If object is intersected by mouse pointer, do something
       if (intersects[0].object == otherPlayers[1]) {
-        alert("2인용 잡았다!");
+        socket.emit("result");
+        alert("승리!");
       } else if (intersects[0].object == otherPlayers[0]) {
-        alert("1인용 잡았다!");
+        socket.emit("result");
+        alert("승리!");
       }
     }
   }
