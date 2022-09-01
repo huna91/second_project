@@ -6,14 +6,14 @@ let users_count = document.querySelector(".users-count");
 let msg_send = document.querySelector("#user-send");
 let user_msg = document.querySelector("#user-msg");
 
-let user_address;
 // do {
 //   username = prompt("이름을 입력하세요: ");
 // } while (!username);
 
+let _userId;
 socket.emit("new-user-joined", username);
-socket.on("user-connected", (socket_name, address) => {
-  user_address = address;
+socket.on("user-connected", (socket_name) => {
+  _userId = socket_name;
   userJoin(socket_name, "님이 들어왔어요");
 });
 function userJoin(name, result) {
@@ -25,11 +25,11 @@ function userJoin(name, result) {
   chats.scrollTop = chats.scrollHeight;
 }
 
-socket.on("user-disconnected", (user, userOut_key, outKey, userAdd) => {
+socket.on("user-disconnected", (user, userOut_key, outKey, myId) => {
   if (userOut_key == true) {
     // 방 접속 누르고 나갔을때
     join_check[outKey[0]].innerHTML = `( ${Number(outKey[1]) - 1} / 2 )`;
-    socket.emit("user_kick", userAdd);
+    socket.emit("user_kick", myId);
   }
   userJoin(user, "님이 나갔어요");
 });

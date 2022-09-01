@@ -242,10 +242,12 @@ let sql =
       }
     });
   });
+let myId;
 
 // 대기실 입장페이지 불러오는거
 app.get("/waiting", middleware, (req, res) => {
   const username = req.session;
+  myId = username.ids;
   // req.session 에 저장 해놓은 ids 값을 랜더링 하면서 넘김
   res.render("waiting/waiting", { user: username.ids });
 });
@@ -258,9 +260,8 @@ io.on("connection", (socket) => {
   console.log("소켓 연결 - appjs");
   // waiting 소켓 컨트롤
   socket.on("new-user-joined", (username) => {
-    const _address = socket.id;
     users[socket.id] = username;
-    io.emit("user-connected", username, _address);
+    io.emit("user-connected", username);
     io.emit("user-list", users);
   });
 
@@ -294,7 +295,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("updatePosition", newData);
   });
 
-  console.log("appjs쪽" + socket.id);
+  console.log("appjs쪽 : " + socket.id);
   socket.on("gameStart", () => {
     let _id = socket.id;
     socket.emit("gameStart", _id);
@@ -336,12 +337,12 @@ io.on("connection", (socket) => {
       }
     });
   });
+  // *******************room 항목 만들기***************************
   // Game.create({
   //   room: 0,
   //   active: 0,
   // });
 
-  // *******************room 항목 만들기***************************
   // Room.create({
   //   room: 0,
   //   count: 0,
@@ -359,6 +360,12 @@ io.on("connection", (socket) => {
   let rooms = [0, 0, 0];
   let userOut_key = false;
   let outKey = [];
+  let rooms_join_user = {
+    room1: [],
+    room2: [],
+    room3: [],
+  };
+
   socket.on("joinChat", () => {
     Room.findOne({
       where: {
@@ -366,6 +373,25 @@ io.on("connection", (socket) => {
       },
     }).then((e) => {
       rooms[0] = Number(e.dataValues.count);
+      if (
+        e.dataValues.user_1 !== null &&
+        rooms_join_user.room1.find((val) => {
+          return val == e.dataValues.user_1;
+        }) == undefined
+      ) {
+        rooms_join_user.room1.push(e.dataValues.user_1);
+      }
+      if (
+        e.dataValues.user_2 !== null &&
+        rooms_join_user.room1.find((val) => {
+          return val == e.dataValues.user_2;
+        }) == undefined
+      ) {
+        rooms_join_user.room1.push(e.dataValues.user_2);
+      }
+      if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
+        rooms_join_user.room1 = [];
+      }
     });
     Room.findOne({
       where: {
@@ -373,6 +399,25 @@ io.on("connection", (socket) => {
       },
     }).then((e) => {
       rooms[1] = Number(e.dataValues.count);
+      if (
+        e.dataValues.user_1 !== null &&
+        rooms_join_user.room2.find((val) => {
+          return val == e.dataValues.user_1;
+        }) == undefined
+      ) {
+        rooms_join_user.room2.push(e.dataValues.user_1);
+      }
+      if (
+        e.dataValues.user_2 !== null &&
+        rooms_join_user.room2.find((val) => {
+          return val == e.dataValues.user_1;
+        }) == undefined
+      ) {
+        rooms_join_user.room2.push(e.dataValues.user_2);
+      }
+      if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
+        rooms_join_user.room2 = [];
+      }
     });
     Room.findOne({
       where: {
@@ -380,10 +425,34 @@ io.on("connection", (socket) => {
       },
     }).then((e) => {
       rooms[2] = Number(e.dataValues.count);
+      if (
+        e.dataValues.user_1 !== null &&
+        rooms_join_user.room3.find((val) => {
+          return val == e.dataValues.user_1;
+        }) == undefined
+      ) {
+        rooms_join_user.room3.push(e.dataValues.user_1);
+      }
+      if (
+        e.dataValues.user_2 !== null &&
+        rooms_join_user.room3.find((val) => {
+          return val == e.dataValues.user_1;
+        }) == undefined
+      ) {
+        rooms_join_user.room3.push(e.dataValues.user_2);
+      }
+      if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
+        rooms_join_user.room3 = [];
+      }
     });
+
     socket.emit("joinChat", rooms);
+    console.log(rooms_join_user);
   });
-  socket.on("roomJoin", (key, user_address) => {
+
+  socket.on("roomJoin", (key, userId) => {
+    // 유저 접속 아이디 확인
+
     userOut_key = true;
     outKey[0] = key;
     // 카운트값 업데이트
@@ -401,10 +470,10 @@ io.on("connection", (socket) => {
       // console.log("유저 " + e.dataValues.user_1);
       if (e.dataValues.user_1 == null) {
         const _sql = "UPDATE rooms SET user_1=? WHERE room=?;";
-        client.query(_sql, [user_address, key]);
+        client.query(_sql, [userId, key]);
       } else {
         const _sql = "UPDATE rooms SET user_2=? WHERE room=?;";
-        client.query(_sql, [user_address, key]);
+        client.query(_sql, [userId, key]);
       }
       const sql = "UPDATE rooms SET count=? WHERE room=?;";
       // 카운트 데이터베이스 업데이트
@@ -415,12 +484,12 @@ io.on("connection", (socket) => {
     socket.emit("roomJoin", userNum);
   });
 
-  socket.on("roomOut", (key, user_address) => {
+  socket.on("roomOut", (key, userId) => {
     // 유저 이름을 키값으로 찾아 방에서 빼기
     userOut_key = false;
     Room.findOne({
       where: {
-        user_1: user_address,
+        user_1: userId,
       },
     })
       .then((e) => {
@@ -429,10 +498,18 @@ io.on("connection", (socket) => {
         let _key = Number(e.dataValues.room);
         rooms[_key] = _temp;
         _temp = _temp - 1;
+        // 유저 뺴기
+        if (_key == 0) {
+          rooms_join_user.room1.splice(myId, 1);
+        } else if (_key == 1) {
+          rooms_join_user.room2.splice(myId, 1);
+        } else if (_key == 2) {
+          rooms_join_user.room3.splice(myId, 1);
+        }
         const sql = "UPDATE rooms SET count=? WHERE user_1=?;";
-        client.query(sql, [_temp, user_address]);
+        client.query(sql, [_temp, userId]);
         const _sql = "UPDATE rooms SET user_1=null WHERE user_1=?;";
-        client.query(_sql, [user_address]);
+        client.query(_sql, [userId]);
         console.log("기존카운트" + rooms[_key]);
         let userNum = rooms[_key] - 1;
         socket.emit("roomOut", userNum, _key);
@@ -440,17 +517,25 @@ io.on("connection", (socket) => {
       .catch(() => {
         Room.findOne({
           where: {
-            user_2: user_address,
+            user_2: userId,
           },
         }).then((e) => {
           // user_2에 들어있을때
           let _temp = Number(e.dataValues.count);
           let _key = Number(e.dataValues.room);
           _temp = _temp - 1;
+          // 유저 뺴기
+          if (_key == 0) {
+            rooms_join_user.room1.splice(myId, 1);
+          } else if (_key == 1) {
+            rooms_join_user.room2.splice(myId, 1);
+          } else if (_key == 2) {
+            rooms_join_user.room3.splice(myId, 1);
+          }
           const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
-          client.query(sql, [_temp, user_address]);
+          client.query(sql, [_temp, userId]);
           const _sql = "UPDATE rooms SET user_2=null WHERE user_2=?;";
-          client.query(_sql, [user_address]);
+          client.query(_sql, [userId]);
           let userNum = rooms[_key] - 1;
           socket.emit("roomOut", userNum, _key);
         });
@@ -465,7 +550,7 @@ io.on("connection", (socket) => {
       users[socket.id],
       userOut_key,
       outKey,
-      socket.id
+      myId
     );
     delete users[socket.id];
     io.emit("user-list", users);
@@ -474,6 +559,7 @@ io.on("connection", (socket) => {
     io.emit("removeOtherPlayer", player);
     world.removePlayer(player);
   });
+  console.log("아이디: " + myId);
   // 강제로 종료했을 때
   socket.on("user_kick", (userAdd) => {
     Room.findOne({
@@ -485,6 +571,14 @@ io.on("connection", (socket) => {
         let _temp = Number(e.dataValues.count);
         let _key = Number(e.dataValues.room);
         _temp = _temp - 1;
+        // 유저 뺴기
+        if (_key == 0) {
+          rooms_join_user.room1.splice(myId, 1);
+        } else if (_key == 1) {
+          rooms_join_user.room2.splice(myId, 1);
+        } else if (_key == 2) {
+          rooms_join_user.room3.splice(myId, 1);
+        }
         rooms[_key] = _temp;
         const sql = "UPDATE rooms SET count=? WHERE user_1=?;";
         client.query(sql, [_temp, userAdd]);
@@ -496,9 +590,17 @@ io.on("connection", (socket) => {
           where: {
             user_2: userAdd,
           },
-        }).then((ev) => {
-          let __temp = Number(ev.dataValues.count);
+        }).then((e) => {
+          let __temp = Number(e.dataValues.count);
           __temp = __temp - 1;
+          // 유저 뺴기
+          if (_key == 0) {
+            rooms_join_user.room1.splice(myId, 1);
+          } else if (_key == 1) {
+            rooms_join_user.room2.splice(myId, 1);
+          } else if (_key == 2) {
+            rooms_join_user.room3.splice(myId, 1);
+          }
           rooms[_key] = __temp;
           const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
           client.query(sql, [__temp, userAdd]);

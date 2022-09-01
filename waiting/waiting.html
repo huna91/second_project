@@ -79,9 +79,14 @@
 
       // 접속유저 주소 받아오기
       // socket.emit("joinChat", "hyhy");
-      setInterval(() => {
+      let room_btn = document.querySelectorAll(".room_option");
+      let join_check = document.querySelectorAll(".join_check");
+      const user_setup = function () {
         socket.emit("joinChat");
-      }, 500);
+      };
+      socket.on("connect", () => {
+        setInterval(user_setup, 2000);
+      });
       socket.on("joinChat", (rooms) => {
         join_check[0].innerHTML = `( ${rooms[0]} / 2 )`;
         join_check[1].innerHTML = `( ${rooms[1]} / 2 )`;
@@ -108,28 +113,41 @@
       });
 
       // 방 컨트롤
+      // 방 번호
       let _key;
+      // 유저 방 입장했는지 확인
       let user_joined = 0;
-      let room_btn = document.querySelectorAll(".room_option");
-      let join_check = document.querySelectorAll(".join_check");
+      //
       for (const key in room_btn) {
         if (Object.hasOwnProperty.call(room_btn, key)) {
           const element = room_btn[key];
           element.onclick = () => {
+            socket.emit("");
             _key = key;
-            if (user_joined == 1) {
-              alert("방에서 나옴");
-              socket.emit("roomOut", _key, user_address);
-              user_joined = 0;
+            if (join_check[_key].innerHTML == "( 2 / 2 )") {
+              if (user_joined == 1) {
+                alert("방에서 나옴");
+                socket.emit("roomOut", _key, username);
+                user_joined = 0;
+              } else {
+                alert("방 인원이 꽉찼습니다.");
+              }
             } else {
-              let __key = Number(_key) + 1;
-              alert(`${__key}번 방 입장`);
-              socket.emit("roomJoin", _key, user_address);
-              user_joined = 1;
+              if (user_joined == 1) {
+                alert("방에서 나옴");
+                socket.emit("roomOut", _key, username);
+                user_joined = 0;
+              } else {
+                let __key = Number(_key) + 1;
+                alert(`${__key}번 방 입장`);
+                console.log(username);
+                socket.emit("roomJoin", _key, username);
+                user_joined = 1;
+              }
+              // 제출 버튼 입력
+              // sub_btn.onclick = () => {};
+              console.log(key + "번버튼");
             }
-            // 제출 버튼 입력
-            // sub_btn.onclick = () => {};
-            console.log(key + "번버튼");
           };
         }
       }
