@@ -47,7 +47,6 @@
     const socket = io();
     let ex_active = document.querySelector(".ex_wrap");
     game_start_btn.onclick = () => {
-      console.log("버튼");
       socket.emit("gameStart");
     };
     let ImUsr = null;
@@ -63,11 +62,10 @@
       socket.emit("active_check", roomNum);
     }, 300);
     socket.on("game_go", () => {
-      console.log("들왔다");
       ex_active.className += " activeGame";
     });
 
-    console.log("html쪽" + socket.id);
+    
     socket.on("updatePosition", function (data) {
       updatePlayerPosition(data);
     });
