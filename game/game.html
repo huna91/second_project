@@ -57,6 +57,10 @@
     game_start_btn.onclick = () => {
       socket.emit("gameStart");
     };
+    let _return = document.querySelector(".return");
+    _return.onclick = function() {
+      window.location.href = "/waiting";
+    }
     let ImUsr = null;
     let roomNum = 0;
     socket.on("gameStart", (_id) => {
@@ -75,7 +79,6 @@
     });
     let result = document.querySelector(".result");
     socket.on("game_active_check", () => {
-      console.log("~~~~~~~~~왔나~~~!!~!~!~!!~!~!");
       result.classList.remove("activeGame");
     });
 

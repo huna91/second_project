@@ -146,20 +146,22 @@ var loadWorld = function () {
 
   function onMouseClick() {
     intersects = calculateIntersects(event);
-    console.log(intersects[0]);
-    console.log(intersects[1]);
-    console.log(intersects[2]);
-    console.log(otherPlayers[0]);
-    console.log(otherPlayers[1]);
-    console.log(otherPlayers[2]);
+    // console.log(intersects[0]);
+    // console.log(intersects[1]);
+    // console.log(intersects[2]);
+    // console.log(otherPlayers[0]);
+    // console.log(otherPlayers[1]);
+    // console.log(otherPlayers[2]);
     if (intersects.length > 0) {
       //If object is intersected by mouse pointer, do something
       if (intersects[0].object == otherPlayers[1]) {
+        console.log("click")
         socket.emit("result");
-        alert("승리!");
+        // alert("승리!");
       } else if (intersects[0].object == otherPlayers[0]) {
+        console.log("클릭")
         socket.emit("result");
-        alert("승리!");
+        // alert("승리!");
       }
     }
   }

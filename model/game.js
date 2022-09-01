@@ -22,6 +22,10 @@ class Game extends _sequelize.Model {
           type: _sequelize.INTEGER(1),
           allowNull: false,
         },
+        active_end: {
+          type: _sequelize.INTEGER(1),
+          allowNull: false,
+        },
       },
       {
         sequelize,
