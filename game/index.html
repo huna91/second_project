@@ -7,7 +7,9 @@
     <script src="//threejs.org/build/three.js"></script>
     <!-- <script src="./node_modules/three/examples/jsm/loaders/GLTFLoader.js"></script> -->
     <script src="/game/js/client_world.js"></script>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Silkscreen&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/explane.css" />
     <style>
       body {
@@ -23,7 +25,7 @@
           <h1>"나 잡아봐~~라" 게임하기</h1>
           <h1>########## 게임 설명 ##########</h1>
           <ul class="line_1">
-            <li>승리방법 : 움직이는 상대방을 먼저 잡으면 승리 ㅋ</li>
+            <li>승리방법 : 움직이는 상대방을 먼저 잡으면 승리 </li>
             <li>
               키 설명
               <ul class="line_2">
@@ -43,10 +45,13 @@
     </div>
     <div class="result activeGame">
       <div class="result_inner">
-        <h1>########### 결 과 ###########</h1>
-        <h2>승리</h2>
+        <h2>
+    
+          ⎛⎝(•‿•)⎠⎞⎛⎝(•‿•)⎠⎞  승리
+    
+           ⎛⎝(•‿•)⎠⎞⎛⎝(•‿•)⎠⎞</h2>
         <h3><%= %></h3>
-        <button class="return">돌아가기</button>
+        <button class="return" style="font-family: 'Jua', sans-serif;">돌아가기</button>
       </div>
     </div>
     <div id="container"></div>
