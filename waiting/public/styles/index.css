@@ -9,6 +9,11 @@
   display: none;
 }
 
+
+body{
+  background-color: #bdc2bb;
+}
+
 main {
   position: absolute;
   top: 50%;
@@ -19,7 +24,7 @@ main {
   border-radius: 10px;
 }
 main header {
-  background-color: #2791cf;
+  background-color: #1c5779;
   color: white;
   padding: 7px 20px;
   display: flex;
@@ -115,7 +120,7 @@ main div.container div.chat-window div.chats div.message p {
 main div.container div.chat-window div.chats div.outgoing {
   margin-left: auto;
   color: white;
-  background-color: #2791cf;
+  background-color: #1f5e83;
   border-radius: 10px;
   text-align: right;
 }
@@ -143,7 +148,7 @@ main div.container div.chat-window div.user-input button {
   outline: none;
   letter-spacing: 0.5px;
   color: white;
-  background-color: #2791cf;
+  background-color: #1f5e83;
   border-radius: 0 10px 10px 0px;
 }
 .room_space{
