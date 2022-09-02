@@ -154,13 +154,13 @@ var loadWorld = function () {
     // console.log(otherPlayers[2]);
     if (intersects.length > 0) {
       //If object is intersected by mouse pointer, do something
-      if (intersects[0].object == otherPlayers[1]) {
-        console.log("click")
-        socket.emit("result");
+      if (intersects[0].object == otherPlayers[0]) {
+        let socket_id = socket.id;
+        socket.emit("result", socket_id);
         // alert("승리!");
-      } else if (intersects[0].object == otherPlayers[0]) {
-        console.log("클릭")
-        socket.emit("result");
+      } else if (intersects[0].object == otherPlayers[1]) {
+        let socket_id = socket.id;
+        socket.emit("result", socket_id);
         // alert("승리!");
       }
     }

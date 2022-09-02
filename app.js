@@ -254,7 +254,8 @@ app.get("/waiting", middleware, (req, res) => {
 
 // game 페이지 불러오는거
 app.get("/game", middleware, (req, res) => {
-  res.render("game/game.html", {myId});
+  const username = req.session;
+  res.render("game/game.html", { user: username.ids });
 })
 
 // ------------------------ 소켓 연결 ------------------------
@@ -269,7 +270,6 @@ io.on("connection", (socket) => {
     io.emit("user-connected", username);
     io.emit("user-list", users);
   });
-
   // socket.on("disconnect", () => {
   //   socket.broadcast.emit("user-disconnected", users[socket.id]);
   //   delete users[socket.id];
@@ -342,22 +342,9 @@ io.on("connection", (socket) => {
       }
     });
   });
-  // 게임 결과
-  socket.on("result", () => {
-    Game.findOne({
-      where: {
-        // 룸 변수 바꾸기
-        room: 0,
-      },
-    }).then((e) => {
-      const sql = "UPDATE games SET active_end=? WHERE room=?";
-      // 룸 변수 바꾸기
-      client.query(sql, [0, 0]);
-      // socket.emit("game_over",myId)
-    });
-  });
+  
   // 게임 결과 확인 및 종료
-  socket.on("game_active_check", () => {
+  socket.on("game_active_end_check", () => {
     Game.findOne({
       where: {
         room: 0,
@@ -645,5 +632,25 @@ io.on("connection", (socket) => {
           client.query(_sql, [userAdd]);
         });
       });
+  });
+  // 게임 결과
+  let winner;
+  socket.on("result", (socket_id) => {
+    Game.findOne({
+      where: {
+        // 룸 변수 바꾸기
+        room: 0,
+      },
+    }).then((e) => {
+      const sql = "UPDATE games SET active_end=? WHERE room=?";
+      // 룸 변수 바꾸기
+      client.query(sql, [0, 0]);
+      if (check_users[0] == socket_id){
+        winner = rooms_join_user.room1[0]
+      } else if (check_users[1] == socket_id){
+        winner = rooms_join_user.room1[1]
+      }
+      socket.emit("winner", winner);
+    });
   });
 });

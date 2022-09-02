@@ -197,3 +197,7 @@ main div.container div.chat-window div.user-input button {
     max-width: 300px;
   }
 }/*# sourceMappingURL=index.css.map */
+
+button {
+  cursor: pointer;
+}
