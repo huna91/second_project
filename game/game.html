@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> game
 <!DOCTYPE html>
 <html>
   <head lang="en">
@@ -7,12 +11,18 @@
     <script src="//threejs.org/build/three.js"></script>
     <!-- <script src="./node_modules/three/examples/jsm/loaders/GLTFLoader.js"></script> -->
     <script src="/game/js/client_world.js"></script>
+<<<<<<< HEAD
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Jua&family=Silkscreen&display=swap"
       rel="stylesheet"
     />
+=======
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Silkscreen&display=swap" rel="stylesheet">
+>>>>>>> game
     <link rel="stylesheet" href="./css/explane.css" />
     <style>
       body {
@@ -48,11 +58,19 @@
     </div>
     <div class="result activeGame">
       <div class="result_inner">
+<<<<<<< HEAD
         <h2>⎛⎝(•‿•)⎠⎞⎛⎝(•‿•)⎠⎞ 승리 ⎛⎝(•‿•)⎠⎞⎛⎝(•‿•)⎠⎞</h2>
         <h3><%= %></h3>
         <button class="return" style="font-family: 'Jua', sans-serif">
           돌아가기
         </button>
+=======
+        <h2>    
+          ⎛⎝(•‿•)⎠⎞⎛⎝(•‿•)⎠⎞⎛⎝(•‿•)⎠⎞
+          <h3 class="winner">패배<!--winner--></h3>
+        </h2>
+        <button class="return" style="font-family: 'Jua', sans-serif;">돌아가기</button>
+>>>>>>> game
       </div>
     </div>
     <div id="container"></div>
@@ -78,8 +96,8 @@
     });
     setInterval(() => {
       socket.emit("active_check", roomNum);
-      socket.emit("game_active_check");
-    }, 2000);
+      socket.emit("game_active_end_check");
+    }, 300);
     socket.on("game_go", () => {
       ex_active.className += " activeGame";
     });
@@ -87,6 +105,11 @@
     socket.on("game_active_check", () => {
       result.classList.remove("activeGame");
     });
+
+    let _winner = document.querySelector(".winner");
+    socket.on("winner", (winner) => {
+      _winner.innerHTML = "승리";
+    })
 
     socket.on("updatePosition", function (data) {
       updatePlayerPosition(data);
