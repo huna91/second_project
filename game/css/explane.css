@@ -14,7 +14,7 @@
 .activeGame{
     display: none;
 }
-/*
+
 #explane{
     position: absolute;
     border: 8px solid white;
@@ -54,7 +54,7 @@
     margin-left: 290px;
     bottom: 20%;
     
-}  */
+} 
 .result {
     position: absolute;
     background-color: rgba(189, 189, 189, 0.774);

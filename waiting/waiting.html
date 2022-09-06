@@ -71,6 +71,7 @@
       <div class="start_game activeGame">
         <div class="start_inner">
           <h1>###########게임하러 가기##########</h1>
+          <br /><br />
           <button id="return_btn">게임 GO</button>
         </div>
       </div>
@@ -146,7 +147,6 @@
               } else {
                 let __key = Number(_key) + 1;
                 alert(`${__key}번 방 입장`);
-                console.log(username);
                 socket.emit("roomJoin", _key, username);
                 user_joined = 1;
                 socket.emit("game_page_open", Number(_key));
@@ -166,9 +166,12 @@
       });
       let start_game = document.querySelector(".start_game");
       socket.on("game_page_open", () => {
+        console.log("게임 페이지 오픈");
+
         start_game.classList.remove("activeGame");
       });
       return_btn.onclick = function () {
+        socket.on("game_joinUser_data", _key, username);
         window.location.href = "/game";
         // 방 값,
       };

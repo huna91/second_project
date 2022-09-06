@@ -6,7 +6,7 @@ class Game extends _sequelize.Model {
     return super.init(
       {
         room: {
-          type: _sequelize.STRING(8),
+          type: _sequelize.INTEGER(2),
           allowNull: false,
           primaryKey: true,
         },

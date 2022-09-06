@@ -12,6 +12,7 @@ const session = require("express-session");
 const world = require("./game/js/server_world");
 // model/index.js 에서 키값 가져오기
 const { sequelize, User, Room, Game } = require("./model");
+
 // const Room = require("./model/room");
 
 // express 실행
@@ -254,8 +255,8 @@ app.get("/waiting", middleware, (req, res) => {
 
 // game 페이지 불러오는거
 app.get("/game", middleware, (req, res) => {
-  res.render("game/game.html", {myId});
-})
+  res.render("game/game.html", { myId });
+});
 
 // ------------------------ 소켓 연결 ------------------------
 // 접속유저
@@ -300,10 +301,16 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("updatePosition", newData);
   });
 
-  console.log("appjs쪽 : " + socket.id);
-  socket.on("gameStart", () => {
-    let _id = socket.id;
-    socket.emit("gameStart", _id);
+  // console.log("appjs쪽 : " + socket.id);
+  socket.on("game_joinUser_data", (roomNum, userName) => {
+    console.log("방번호: " + roomNum + "유저아이디 :" + userName);
+    socket.on("gameStart", () => {
+      console.log(
+        "2222222222222222방번호: " + roomNum + "유저아이디 :" + userName
+      );
+      let _id = socket.id;
+      socket.emit("gameStart", _id);
+    });
   });
 
   let check_users = [];
@@ -357,7 +364,7 @@ io.on("connection", (socket) => {
     });
   });
   // 게임 결과 확인 및 종료
-  socket.on("game_active_check", () => {
+  socket.on("game_active_end_check", () => {
     Game.findOne({
       where: {
         room: 0,
@@ -366,18 +373,28 @@ io.on("connection", (socket) => {
       if (Number(e.dataValues.active_end) == 0) {
         socket.emit("game_active_check");
         // 해당 룸 초기화
-        const sql = "UPDATE games SET user_1=?, user_2=?, active=?, active_end=? WHERE room=?;";
+        const sql =
+          "UPDATE games SET user_1=?, user_2=?, active=?, active_end=? WHERE room=?;";
         client.query(sql, [null, null, 0, 1, 0]);
       }
     });
   });
 
-
   // *******************room 항목 만들기***************************
   // Game.create({
   //   room: 0,
   //   active: 0,
-  //   active_end: 1
+  //   active_end: 1,
+  // });
+  // Game.create({
+  //   room: 1,
+  //   active: 0,
+  //   active_end: 1,
+  // });
+  // Game.create({
+  //   room: 2,
+  //   active: 0,
+  //   active_end: 1,
   // });
 
   // Room.create({
@@ -432,15 +449,8 @@ io.on("connection", (socket) => {
       if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
         rooms_join_user.room1 = [];
       }
-      if (e.dataValues.count == 2) {
-        Room.findOne({
-          where: {
-            room: 0,
-          },
-        }).then((e) => {
-          const sql = "UPDATE rooms SET active=? WHERE room=?;";
-          client.query(sql, [1, 0]);
-        });
+      if (e.dataValues.active == 1) {
+        socket.emit("game_page_open");
       }
     });
     Room.findOne({
@@ -468,6 +478,9 @@ io.on("connection", (socket) => {
       if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
         rooms_join_user.room2 = [];
       }
+      if (e.dataValues.active == 1) {
+        socket.emit("game_page_open");
+      }
     });
     Room.findOne({
       where: {
@@ -494,22 +507,25 @@ io.on("connection", (socket) => {
       if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
         rooms_join_user.room3 = [];
       }
+      if (e.dataValues.active == 1) {
+        socket.emit("game_page_open");
+      }
     });
 
     socket.emit("joinChat", rooms);
     console.log(rooms_join_user);
   });
-  socket.on("game_page_open", (key) => {
-    Room.findOne({
-      where: {
-        room: key,
-      },
-    }).then((e) => {
-      if (e.dataValues.active == 1) {
-        socket.emit("game_page_open");
-      }
-    });
-  });
+  // 잠만
+  // socket.on("game_page_open", (key) => {
+  //   Room.findOne({
+  //     where: {
+  //       room: key,
+  //     },
+  //   }).then((e) => {
+  //     if (e.dataValues.active == 1) {
+  //     }
+  //   });
+  // });
 
   socket.on("roomJoin", (key, userId) => {
     // 유저 접속 아이디 확인
@@ -530,16 +546,48 @@ io.on("connection", (socket) => {
       // 유저 데이터 넣기
       // console.log("유저 " + e.dataValues.user_1);
       if (e.dataValues.user_1 == null) {
-        const _sql = "UPDATE rooms SET user_1=? WHERE room=?;";
-        client.query(_sql, [userId, key]);
+        //const _sql = "UPDATE rooms SET count=? user_1=? WHERE room=?;";
+        Room.update(
+          { count: _temp, user_1: userId },
+          { where: { room: key } }
+        ).then((e) => {
+          // 다시 찾아서 값 넣고 리턴
+          Room.findOne({
+            where: {
+              room: key,
+            },
+          }).then((e2) => {
+            if (e2.dataValues.count == 2) {
+              const sql = "UPDATE rooms SET active=? WHERE room=?;";
+              client.query(sql, [1, key]);
+            }
+          });
+        });
       } else {
-        const _sql = "UPDATE rooms SET user_2=? WHERE room=?;";
-        client.query(_sql, [userId, key]);
+        // const _sql = "UPDATE rooms SET count=? user_2=? WHERE room=?;";
+        Room.update(
+          { count: _temp, user_2: userId },
+          { where: { room: key } }
+        ).then((e) => {
+          Room.findOne({
+            where: {
+              room: key,
+            },
+          }).then((e2) => {
+            if (e2.dataValues.count == 2) {
+              const sql = "UPDATE rooms SET active=? WHERE room=?;";
+              client.query(sql, [1, key]);
+            }
+          });
+        });
       }
-      const sql = "UPDATE rooms SET count=? WHERE room=?;";
       // 카운트 데이터베이스 업데이트
-      client.query(sql, [_temp, key]);
+      // const sql = "UPDATE rooms SET count=? WHERE room=?;";
+      // client.query(sql, [_temp, key]);
+      // return e;
     });
+    // .then((e2) => {
+    // });
 
     let userNum = rooms[key] + 1;
     socket.emit("roomJoin", userNum);
@@ -581,22 +629,26 @@ io.on("connection", (socket) => {
             user_2: userId,
           },
         }).then((e) => {
-          // user_2에 들어있을때
-          let _temp = Number(e.dataValues.count);
-          let _key = Number(e.dataValues.room);
-          _temp = _temp - 1;
-          // 유저 뺴기
-          if (_key == 0) {
-            rooms_join_user.room1.splice(myId, 1);
-          } else if (_key == 1) {
-            rooms_join_user.room2.splice(myId, 1);
-          } else if (_key == 2) {
-            rooms_join_user.room3.splice(myId, 1);
+          if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
+            return;
+          } else {
+            // user_2에 들어있을때
+            let _temp = Number(e.dataValues.count);
+            let _key = Number(e.dataValues.room);
+            _temp = _temp - 1;
+            // 유저 뺴기
+            if (_key == 0) {
+              rooms_join_user.room1.splice(myId, 1);
+            } else if (_key == 1) {
+              rooms_join_user.room2.splice(myId, 1);
+            } else if (_key == 2) {
+              rooms_join_user.room3.splice(myId, 1);
+            }
+            const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
+            client.query(sql, [_temp, userId]);
+            const _sql = "UPDATE rooms SET user_2=null WHERE user_2=?;";
+            client.query(_sql, [userId]);
           }
-          const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
-          client.query(sql, [_temp, userId]);
-          const _sql = "UPDATE rooms SET user_2=null WHERE user_2=?;";
-          client.query(_sql, [userId]);
           let userNum = rooms[_key] - 1;
           socket.emit("roomOut", userNum, _key);
         });
@@ -621,6 +673,7 @@ io.on("connection", (socket) => {
     world.removePlayer(player);
   });
   console.log("아이디: " + myId);
+
   // 강제로 종료했을 때
   socket.on("user_kick", (userAdd) => {
     Room.findOne({
@@ -652,23 +705,48 @@ io.on("connection", (socket) => {
             user_2: userAdd,
           },
         }).then((e) => {
-          let __temp = Number(e.dataValues.count);
-          let _key = Number(e.dataValues.room);
-          __temp = __temp - 1;
-          // 유저 뺴기
-          if (_key == 0) {
-            rooms_join_user.room1.splice(myId, 1);
-          } else if (_key == 1) {
-            rooms_join_user.room2.splice(myId, 1);
-          } else if (_key == 2) {
-            rooms_join_user.room3.splice(myId, 1);
+          if (e.dataValues.user_1 == null && e.dataValues.user_2 == null) {
+            return;
+          } else {
+            let __temp = Number(e.dataValues.count);
+            let _key = Number(e.dataValues.room);
+            __temp = __temp - 1;
+            // 유저 뺴기
+            if (_key == 0) {
+              rooms_join_user.room1.splice(myId, 1);
+            } else if (_key == 1) {
+              rooms_join_user.room2.splice(myId, 1);
+            } else if (_key == 2) {
+              rooms_join_user.room3.splice(myId, 1);
+            }
+            rooms[_key] = __temp;
+            const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
+            client.query(sql, [__temp, userAdd]);
+            const _sql = "UPDATE rooms SET user_2=null WHERE user_2=?;";
+            client.query(_sql, [userAdd]);
           }
-          rooms[_key] = __temp;
-          const sql = "UPDATE rooms SET count=? WHERE user_2=?;";
-          client.query(sql, [__temp, userAdd]);
-          const _sql = "UPDATE rooms SET user_2=null WHERE user_2=?;";
-          client.query(_sql, [userAdd]);
         });
       });
+  });
+
+  // 게임 결과
+  let winner;
+  socket.on("result", (socket_id) => {
+    Game.findOne({
+      where: {
+        // 룸 변수 바꾸기
+        room: 0,
+      },
+    }).then((e) => {
+      const sql = "UPDATE games SET active_end=? WHERE room=?";
+      // 룸 변수 바꾸기
+      client.query(sql, [0, 0]);
+      if (check_users[0] == socket_id) {
+        winner = rooms_join_user.room1[0];
+      } else if (check_users[1] == socket_id) {
+        winner = rooms_join_user.room1[1];
+      }
+      socket.emit("winner", winner);
+    });
   });
 });
