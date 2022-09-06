@@ -270,7 +270,6 @@ io.on("connection", (socket) => {
     io.emit("user-connected", username);
     io.emit("user-list", users);
   });
-
   // socket.on("disconnect", () => {
   //   socket.broadcast.emit("user-disconnected", users[socket.id]);
   //   delete users[socket.id];
@@ -349,20 +348,7 @@ io.on("connection", (socket) => {
       }
     });
   });
-  // 게임 결과
-  socket.on("result", () => {
-    Game.findOne({
-      where: {
-        // 룸 변수 바꾸기
-        room: 0,
-      },
-    }).then((e) => {
-      const sql = "UPDATE games SET active_end=? WHERE room=?";
-      // 룸 변수 바꾸기
-      client.query(sql, [0, 0]);
-      // socket.emit("game_over",myId)
-    });
-  });
+
   // 게임 결과 확인 및 종료
   socket.on("game_active_end_check", () => {
     Game.findOne({
