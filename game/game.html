@@ -92,6 +92,7 @@
 
     let _winner = document.querySelector(".winner");
     socket.on("winner", (winner) => {
+      socket.emit("reset_game", roomNum);
       _winner.innerHTML = "승리";
     });
 

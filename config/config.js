@@ -18,6 +18,7 @@ const config = {
     username: "root",
     password: process.env.DATABASE_PASSWORD,
     database: "teamproject",
+    logging: false,
     host: "127.0.0.1",
     dialect: "mysql",
   },
