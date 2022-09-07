@@ -95,3 +95,8 @@
 .return {
     cursor: pointer;
 }
+
+.line_2 span {
+    font-size: 15px;
+    color: gray;
+}
