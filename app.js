@@ -70,9 +70,9 @@ app.use(
 
 // mysql 연결
 const client = mysql.createConnection({
-  user: "root",
+  user: "admin",
   password: process.env.DATABASE_PASSWORD,
-  database: "teamproject",
+  database: "myProjectDb",
   multipleStatements: true,
 });
 
