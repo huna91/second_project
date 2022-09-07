@@ -15,11 +15,11 @@ const dot = require("dotenv").config();
 // 하영
 const config = {
   dev: {
-    username: "root",
+    username: "admin",
     password: process.env.DATABASE_PASSWORD,
-    database: "teamproject",
+    database: "myProjectDb",
     logging: false,
-    host: "127.0.0.1",
+    host: "ec2-54-180-141-97.ap-northeast-2.compute.amazonaws.com",
     dialect: "mysql",
   },
 };
