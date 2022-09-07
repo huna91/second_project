@@ -70,9 +70,11 @@ app.use(
 
 // mysql 연결
 const client = mysql.createConnection({
-  user: "admin",
+  // user: "admin",
+  user: "root",
   password: process.env.DATABASE_PASSWORD,
-  database: "myProjectDb",
+  // database: "myProjectDb",
+  database: "teamproject",
   multipleStatements: true,
 });
 
@@ -373,6 +375,9 @@ io.on("connection", (socket) => {
         const sql =
           "UPDATE games SET user_1=?, user_2=?, active=?, active_end=? WHERE room=?;";
         client.query(sql, [null, null, 0, 1, 0]);
+        const _sql =
+          "UPDATE rooms SET count=?, user_1=?, user_2=?, active=? WHERE room=?;";
+        client.query(_sql, [0, null, null, 0, 0]);
       }
     });
   });
