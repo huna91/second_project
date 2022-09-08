@@ -70,8 +70,10 @@ app.use(
 
 // mysql 연결
 const client = mysql.createConnection({
+  // user: "admin",
   user: "root",
   password: process.env.DATABASE_PASSWORD,
+  // database: "myProjectDb",
   database: "teamproject",
   multipleStatements: true,
 });
@@ -303,12 +305,23 @@ io.on("connection", (socket) => {
   // console.log("appjs쪽 : " + socket.id);
   socket.on("game_joinUser_data", (roomNum, userName) => {
     console.log("방번호: " + roomNum + "유저아이디 :" + userName);
-    socket.on("gameStart", () => {
-      console.log(
-        "2222222222222222방번호: " + roomNum + "유저아이디 :" + userName
-      );
-      let _id = socket.id;
-      socket.emit("gameStart", _id);
+    console.log(
+      "2222222222222222방번호: " + roomNum + "유저아이디 :" + userName
+    );
+  });
+  socket.on("gameStart", () => {
+    let _id = socket.id;
+    socket.emit("gameStart", _id);
+  });
+  socket.on("reset_game", (roomNum) => {
+    Room.findOne({
+      where: {
+        room: roomNum,
+      },
+    }).then((e) => {
+      const sql =
+        "UPDATE rooms SET count=?, user_1=?, user_2=?, active=? WHERE room=?;";
+      client.query(sql, [0, null, null, 0, roomNum]);
     });
   });
 
@@ -316,7 +329,7 @@ io.on("connection", (socket) => {
   socket.on("gameReady", (ImUsr, room) => {
     Game.findOne({
       where: {
-        room: 0,
+        room: room,
       },
     }).then((e) => {
       if (e.dataValues.user_1 != null) {
@@ -362,6 +375,9 @@ io.on("connection", (socket) => {
         const sql =
           "UPDATE games SET user_1=?, user_2=?, active=?, active_end=? WHERE room=?;";
         client.query(sql, [null, null, 0, 1, 0]);
+        const _sql =
+          "UPDATE rooms SET count=?, user_1=?, user_2=?, active=? WHERE room=?;";
+        client.query(_sql, [0, null, null, 0, 0]);
       }
     });
   });
@@ -658,7 +674,7 @@ io.on("connection", (socket) => {
     io.emit("removeOtherPlayer", player);
     world.removePlayer(player);
   });
-  console.log("아이디: " + myId);
+  // console.log("아이디: " + myId);
 
   // 강제로 종료했을 때
   socket.on("user_kick", (userAdd) => {
